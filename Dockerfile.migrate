@@ -1,0 +1,8 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY tsconfig*.json ./
+COPY src ./src
+COPY scripts ./scripts
+CMD ["sh", "-c", "npm run migration:run && npm run seed:run"]
