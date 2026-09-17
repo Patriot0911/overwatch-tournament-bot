@@ -46,12 +46,17 @@ export class DiscordExplorer implements OnModuleInit {
   private async registerInteractionHandlers(): Promise<void> {
     const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = [];
 
-    for (const wrapper of this.discoveryService.getProviders()) {
+    const providers = this.discoveryService.getProviders();
+    this.logger.debug(`Scanning ${providers.length} discovered provider(s) for Discord handlers.`);
+
+    for (const wrapper of providers) {
       if (!wrapper.instance) continue;
 
       const instance = wrapper.instance;
       const prototype = Object.getPrototypeOf(instance);
       if (!prototype) continue;
+
+      const providerName = wrapper.name?.toString() ?? instance.constructor?.name ?? 'UnknownProvider';
 
       this.metadataScanner.getAllMethodNames(prototype).forEach((methodName) => {
         const method = instance[methodName];
@@ -60,35 +65,74 @@ export class DiscordExplorer implements OnModuleInit {
         if (commandMetadata) {
           commands.push(commandMetadata.body);
           this.commandHandlers.set(commandMetadata.body.name, method.bind(instance));
+          this.logger.debug(
+            `Found command "${commandMetadata.body.name}" in ${providerName}.${methodName}.`,
+          );
         }
 
         const buttonPrefix: string | undefined = this.reflector.get(BUTTON_METADATA, method);
         if (buttonPrefix) {
           this.buttonHandlers.set(buttonPrefix, method.bind(instance));
+          this.logger.debug(`Found button handler "${buttonPrefix}" in ${providerName}.${methodName}.`);
         }
 
         const modalPrefix: string | undefined = this.reflector.get(MODAL_METADATA, method);
         if (modalPrefix) {
           this.modalHandlers.set(modalPrefix, method.bind(instance));
+          this.logger.debug(`Found modal handler "${modalPrefix}" in ${providerName}.${methodName}.`);
         }
 
         const selectMenuPrefix: string | undefined = this.reflector.get(SELECT_MENU_METADATA, method);
         if (selectMenuPrefix) {
           this.selectMenuHandlers.set(selectMenuPrefix, method.bind(instance));
+          this.logger.debug(`Found select menu handler "${selectMenuPrefix}" in ${providerName}.${methodName}.`);
         }
 
         const autocompleteCommandName: string | undefined = this.reflector.get(AUTOCOMPLETE_METADATA, method);
         if (autocompleteCommandName) {
           this.autocompleteHandlers.set(autocompleteCommandName, method.bind(instance));
+          this.logger.debug(
+            `Found autocomplete handler "${autocompleteCommandName}" in ${providerName}.${methodName}.`,
+          );
         }
       });
     }
 
-    const rest = new REST().setToken(this.configService.get('DISCORD_TOKEN', { infer: true }));
+    if (commands.length === 0) {
+      this.logger.warn('No slash commands were discovered. Check that command providers are registered in their module and decorated with @Command.');
+    } else {
+      this.logger.log(`Discovered ${commands.length} slash command(s): ${commands.map((c) => c.name).join(', ')}`);
+    }
+
+    const token = this.configService.get('DISCORD_TOKEN', { infer: true });
     const clientId = this.configService.get('DISCORD_CLIENT_ID', { infer: true });
 
-    await rest.put(Routes.applicationCommands(clientId), { body: commands });
-    this.logger.log(`Registered ${commands.length} slash command(s).`);
+    if (!token || !clientId) {
+      this.logger.error(
+        `Cannot register commands: missing ${!token ? 'DISCORD_TOKEN' : ''} ${!clientId ? 'DISCORD_CLIENT_ID' : ''}`.trim(),
+      );
+      return;
+    }
+
+    this.logger.debug(`Registering commands for application (client) ID "${clientId}" via PUT ${Routes.applicationCommands(clientId)}.`);
+
+    const rest = new REST().setToken(token);
+
+    try {
+      const result = (await rest.put(Routes.applicationCommands(clientId), {
+        body: commands,
+      })) as unknown[];
+      this.logger.log(
+        `Registered ${commands.length} slash command(s) with Discord (API returned ${result.length} command(s)). ` +
+          'Note: global command updates can take up to 1 hour to propagate to all clients.',
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to register slash commands with Discord: ${error instanceof Error ? error.message : String(error)}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      throw error;
+    }
 
     this.client.on('interactionCreate', (interaction: Interaction) => this.dispatchInteraction(interaction));
   }
