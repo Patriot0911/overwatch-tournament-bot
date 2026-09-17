@@ -1,10 +1,10 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
-export default function balanceTeamsMeta() {
+export default function setupBalanceListMeta() {
   return new SlashCommandBuilder()
-    .setName('balance-teams')
+    .setName('setup-balance-list')
     .setDescription(
-      'Balance players into two teams based on their role ratings',
+      'Input players and their role ranks to prepare a balance list',
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .toJSON();
