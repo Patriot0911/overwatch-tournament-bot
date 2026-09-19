@@ -30,18 +30,31 @@ function countRoleArrangements(problem: BalancingProblem): number {
   );
 }
 
+/** Ways to choose which players sit out. */
+function countBenchChoices(problem: BalancingProblem): number {
+  const total = problem.players.length;
+  const benchSize = total - problem.slots.length;
+  let choices = 1;
+  for (let i = 1; i <= benchSize; i++) {
+    choices = (choices * (total - benchSize + i)) / i;
+  }
+  return choices;
+}
+
 /**
- * Ground truth for small pools: tries every split of players into teams and,
- * for each split, every placement of players into role slots. Every valid
- * assignment is visited exactly once.
+ * Ground truth for small pools: tries every choice of who sits out, every
+ * split of the rest into teams and every placement of players into role slots,
+ * keeping the assignment with the best score. Every valid assignment is
+ * visited exactly once.
  */
 export class ExhaustiveAlgorithm implements BalancerAlgorithm {
   readonly name = 'exhaustive';
   readonly description =
-    'Checks every split and role placement; provably optimal, only for small pools (e.g. 2 teams of 5).';
+    'Checks every bench choice, split and role placement; provably optimal, only for small pools (e.g. 2 teams of 5).';
 
   supports(problem: BalancingProblem): boolean {
     const evaluations =
+      countBenchChoices(problem) *
       countPartitions(problem.teamCount, problem.teamSize) *
       Math.pow(countRoleArrangements(problem), problem.teamCount);
     return evaluations <= MAX_EVALUATIONS;
@@ -76,8 +89,9 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
   ): void {
     const { players, teamCount, teamSize, composition, slots, teamSlots } =
       problem;
+    const benchSize = players.length - slots.length;
     const teams: number[][] = Array.from({ length: teamCount }, () => []);
-    const assignment = new Array<number>(slots.length);
+    const assignment = new Array<number>(players.length);
 
     const roleSlots = teamSlots.map((indices) =>
       Object.fromEntries(
@@ -87,6 +101,9 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
         ]),
       ),
     );
+
+    // The players who actually play in the current bench choice.
+    let playing: number[] = [];
 
     const arrangeTeam = (team: number): void => {
       if (team === teamCount) {
@@ -118,22 +135,40 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
       placeMember(0);
     };
 
-    const splitPlayers = (player: number): void => {
-      if (player === players.length) {
+    const splitPlayers = (next: number): void => {
+      if (next === playing.length) {
         arrangeTeam(0);
         return;
       }
 
+      const player = playing[next];
       for (let team = 0; team < teamCount; team++) {
         if (teams[team].length >= teamSize) continue;
         teams[team].push(player);
-        splitPlayers(player + 1);
+        splitPlayers(next + 1);
         teams[team].pop();
         // Empty teams are interchangeable, so only try the first empty one.
         if (teams[team].length === 0) break;
       }
     };
 
-    splitPlayers(0);
+    const chooseBench = (from: number, chosen: number[]): void => {
+      if (chosen.length === benchSize) {
+        const benched = new Set(chosen);
+        playing = players.map((_, i) => i).filter((i) => !benched.has(i));
+        chosen.forEach((player, i) => {
+          assignment[slots.length + i] = player;
+        });
+        splitPlayers(0);
+        return;
+      }
+      for (let player = from; player < players.length; player++) {
+        chosen.push(player);
+        chooseBench(player + 1, chosen);
+        chosen.pop();
+      }
+    };
+
+    chooseBench(0, []);
   }
 }

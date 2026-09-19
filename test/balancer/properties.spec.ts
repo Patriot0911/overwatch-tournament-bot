@@ -37,6 +37,10 @@ interface Config {
   pools: number;
   /** True when the exhaustive algorithm can handle it (the optimum is known). */
   exact: boolean;
+  /** Players beyond what the teams need: they sit out. */
+  extra?: number;
+  /** Let the service work out the team count from the number of players. */
+  auto?: boolean;
 }
 
 const CONFIGS: Config[] = [
@@ -91,6 +95,78 @@ const CONFIGS: Config[] = [
   },
 ];
 
+CONFIGS.push(
+  {
+    name: '2 teams, 1/2/2 + 1 spare (team count derived)',
+    teamCount: 2,
+    composition: DEFAULT_COMPOSITION,
+    pools: 10,
+    exact: true,
+    extra: 1,
+    auto: true,
+  },
+  {
+    name: '2 teams, 1/1/1 + 2 spare (team count derived)',
+    teamCount: 2,
+    composition: { tank: 1, damage: 1, support: 1 },
+    pools: 15,
+    exact: true,
+    extra: 2,
+    auto: true,
+  },
+  {
+    name: '2 teams, 1/2/2 + 3 spare (team count derived)',
+    teamCount: 2,
+    composition: DEFAULT_COMPOSITION,
+    pools: 8,
+    exact: false,
+    extra: 3,
+    auto: true,
+  },
+  {
+    name: '3 teams, 1/2/2 + 2 spare (team count derived)',
+    teamCount: 3,
+    composition: DEFAULT_COMPOSITION,
+    pools: 5,
+    exact: false,
+    extra: 2,
+    auto: true,
+  },
+  {
+    name: '4 teams, 1/2/2 + 1 spare (team count derived)',
+    teamCount: 4,
+    composition: DEFAULT_COMPOSITION,
+    pools: 4,
+    exact: false,
+    extra: 1,
+    auto: true,
+  },
+  {
+    name: '2 teams requested from 13 players',
+    teamCount: 2,
+    composition: DEFAULT_COMPOSITION,
+    pools: 6,
+    exact: false,
+    extra: 3,
+  },
+  {
+    name: '5 teams, 1/2/2',
+    teamCount: 5,
+    composition: DEFAULT_COMPOSITION,
+    pools: 3,
+    exact: false,
+  },
+  {
+    name: '6 teams, 1/2/2 + 2 spare (team count derived)',
+    teamCount: 6,
+    composition: DEFAULT_COMPOSITION,
+    pools: 3,
+    exact: false,
+    extra: 2,
+    auto: true,
+  },
+);
+
 const teamSize = (composition: RoleComposition) =>
   ROLES.reduce((sum, role) => sum + composition[role], 0);
 
@@ -105,7 +181,8 @@ function feasiblePools(
   seed: number,
 ): { pools: Pool[]; attempts: number } {
   const rng = createRng(seed);
-  const size = config.teamCount * teamSize(config.composition);
+  const size =
+    config.teamCount * teamSize(config.composition) + (config.extra ?? 0);
   const pools: Pool[] = [];
   let attempts = 0;
 
@@ -132,7 +209,7 @@ function options(
 ): BalancerOptions {
   return {
     algorithm,
-    teamCount: config.teamCount,
+    teamCount: config.auto ? undefined : config.teamCount,
     composition: config.composition,
     ...extra,
   };
@@ -192,10 +269,14 @@ for (const config of CONFIGS) {
             for (const player of pool.players) {
               const roles = playedRoles(player);
               if (roles.length === 1) {
-                assert.equal(
-                  roleOf(result, player.discordId),
-                  roles[0],
-                  `${player.discordId} plays only ${roles[0]}`,
+                // A single-role player plays their role, or sits out.
+                const placed = roleOf(result, player.discordId);
+                const benched = result.bench.some(
+                  (p) => p.discordId === player.discordId,
+                );
+                assert.ok(
+                  benched ? placed === undefined : placed === roles[0],
+                  `${player.discordId} plays only ${roles[0]} (placed: ${placed}, benched: ${benched})`,
                 );
               }
             }
@@ -345,6 +426,28 @@ for (const config of CONFIGS) {
         }
       });
 
+      if ((config.extra ?? 0) > 0) {
+        it('one more player never makes the optimum worse', () => {
+          let checked = 0;
+          for (const pool of pools) {
+            const fixed = { teamCount: config.teamCount };
+            let fewer: number;
+            try {
+              fewer = optimumOf(pool.players.slice(0, -1), fixed);
+            } catch (error) {
+              if (!(error instanceof InvalidBalancerInputError)) throw error;
+              continue; // without the extra player the pool cannot fill the roles
+            }
+            assert.ok(
+              optimumOf(pool.players, fixed) <= fewer + 1e-9,
+              'the old best split is still available with the extra player on the bench',
+            );
+            checked++;
+          }
+          assert.ok(checked > 0, 'at least one pool was comparable');
+        });
+      }
+
       it('does not get worse when a player gains a role they can also play equally well', () => {
         // Extra options can only help: the old split is still available.
         for (const pool of pools.slice(0, 12)) {
@@ -365,19 +468,80 @@ for (const config of CONFIGS) {
 }
 
 describe('random pools: player count edge cases', () => {
-  it('always rejects a count that does not match the teams', () => {
+  const flexPool = (size: number) =>
+    balancerInputSchema.parse(
+      Array.from({ length: size }, (_, i) => ({
+        discordId: `p${i}`,
+        username: `p${i}`,
+        tank: 100 + ((i * 37) % 900),
+        damage: 100 + ((i * 53) % 900),
+        support: 100 + ((i * 71) % 900),
+      })),
+    );
+
+  it('rejects any pool too small for two teams, for every algorithm', () => {
     const rng = createRng(5);
-    for (const size of [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15]) {
+    for (const size of [2, 3, 4, 5, 6, 7, 8, 9]) {
       const players = balancerInputSchema.parse(randomRawPool(rng, size));
       for (const algorithm of ALGORITHM_NAMES) {
         assert.throws(
           () => service.balanceTeams(players, { algorithm }),
           (error: unknown) =>
             error instanceof InvalidBalancerInputError &&
-            /Expected 10 players/.test(error.message),
+            /Not enough players for 2 teams of 5: need at least 10/.test(
+              error.message,
+            ),
           `${size} players with ${algorithm}`,
         );
       }
+    }
+  });
+
+  it('forms as many full teams as fit for every pool size from 10 to 30', () => {
+    for (let size = 10; size <= 30; size++) {
+      const players = flexPool(size);
+      const teams = Math.floor(size / 5);
+      for (const algorithm of ['snake-draft', 'greedy'] as const) {
+        const result = service.balanceTeams(players, { algorithm });
+        assert.equal(
+          result.teams.length,
+          teams,
+          `${size} players, ${algorithm}`,
+        );
+        assert.equal(
+          result.bench.length,
+          size - teams * 5,
+          `${size} players, ${algorithm}`,
+        );
+        assertValidResult(resolveSetup(players), result);
+      }
+    }
+  });
+
+  it('annealing also handles every size from 10 to 30', () => {
+    for (const size of [10, 11, 12, 13, 14, 15, 17, 19, 20, 21, 24, 27, 30]) {
+      const players = flexPool(size);
+      const result = service.balanceTeams(players, {
+        algorithm: 'simulated-annealing',
+      });
+      assert.equal(
+        result.teams.length,
+        Math.floor(size / 5),
+        `${size} players`,
+      );
+      assertValidResult(resolveSetup(players), result);
+    }
+  });
+
+  it('never leaves out a whole team worth of players', () => {
+    for (let size = 10; size <= 40; size++) {
+      const {
+        teamCount,
+        teamSize: perTeam,
+        benchCount,
+      } = service.planTeams(size);
+      assert.ok(benchCount < perTeam, `${size} players`);
+      assert.equal(teamCount * perTeam + benchCount, size);
     }
   });
 });

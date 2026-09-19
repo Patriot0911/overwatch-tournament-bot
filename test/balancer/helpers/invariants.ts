@@ -22,15 +22,22 @@ export interface Setup {
   weights: ObjectiveWeights;
 }
 
-/** Mirrors how the service fills in defaults, independently of its code. */
+/**
+ * Mirrors how the service fills in defaults, independently of its code: as many
+ * full teams as the players allow (at least two) unless a count is given.
+ */
 export function resolveSetup(
   players: BalancerPlayerInput[],
   options: BalancerOptions = {},
 ): Setup {
+  const composition = options.composition ?? DEFAULT_COMPOSITION;
+  const teamSize = ROLES.reduce((sum, role) => sum + composition[role], 0);
+
   return {
     players,
-    composition: options.composition ?? DEFAULT_COMPOSITION,
-    teamCount: options.teamCount ?? 2,
+    composition,
+    teamCount:
+      options.teamCount ?? Math.max(2, Math.floor(players.length / teamSize)),
     roleWeights: { ...DEFAULT_ROLE_WEIGHTS, ...options.roleWeights },
     weights: { ...DEFAULT_WEIGHTS, ...options.weights },
   };
@@ -132,10 +139,30 @@ export function assertValidResult(setup: Setup, result: BalancedTeams): void {
     }
   });
 
+  const playing = teamCount * teamSize;
+  assert.equal(
+    seen.size,
+    playing,
+    'every slot is filled by a different player',
+  );
+
+  // Everyone who is not in a team is on the bench, exactly once.
+  assert.equal(result.bench.length, players.length - playing, 'bench size');
+  for (const player of result.bench) {
+    assert.ok(
+      byId.has(player.discordId),
+      `unknown bench player ${player.discordId}`,
+    );
+    assert.ok(
+      !seen.has(player.discordId),
+      `${player.discordId} is both playing and benched`,
+    );
+    seen.add(player.discordId);
+  }
   assert.equal(
     seen.size,
     players.length,
-    'every player is placed exactly once',
+    'every player is placed or benched exactly once',
   );
 
   const expected = recomputeMetrics(setup, result);
@@ -151,7 +178,7 @@ export function assertValidResult(setup: Setup, result: BalancedTeams): void {
   });
 }
 
-/** Canonical form of a split, ignoring team order and order inside a role. */
+/** Canonical form of a split, ignoring team order and order inside a role or the bench. */
 export function splitKey(result: BalancedTeams): string {
   return result.teams
     .map((team) =>
@@ -164,5 +191,13 @@ export function splitKey(result: BalancedTeams): string {
       ).join('|'),
     )
     .sort()
-    .join('/');
+    .join('/')
+    .concat(
+      result.bench.length > 0
+        ? `#${result.bench
+            .map((player) => player.discordId)
+            .sort()
+            .join(',')}`
+        : '',
+    );
 }

@@ -260,9 +260,14 @@ describe('createProblem', () => {
 
   const rejected: [string, () => unknown, RegExp][] = [
     [
-      'wrong player count',
+      'too few players for two teams',
       () => problemOf(flexTen.slice(0, 8)),
-      /Expected 10 players \(2 teams x 5\), got 8/,
+      /Not enough players for 2 teams of 5: need at least 10, got 8/,
+    ],
+    [
+      'too few players for an explicit team count',
+      () => problemOf(flexTen, { teamCount: 3 }),
+      /Not enough players for 3 teams of 5: need at least 15, got 10/,
     ],
     [
       'team count 1',

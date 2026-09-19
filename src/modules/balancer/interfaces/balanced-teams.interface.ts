@@ -9,6 +9,10 @@ import type { BalancerPlayerInput } from '../dto/balancer-input.schema';
 
 export interface BalancerOptions {
   algorithm?: AlgorithmName;
+  /**
+   * Exactly this many teams. When omitted, as many full teams as the players
+   * allow (at least two); the rest of the players sit out.
+   */
   teamCount?: number;
   composition?: RoleComposition;
   roleWeights?: Partial<RoleWeights>;
@@ -58,6 +62,8 @@ export interface VarietyInfo {
 export interface BalancedTeams {
   algorithm: AlgorithmName;
   teams: BalancedTeam[];
+  /** Players left out because they did not fit into a full team. */
+  bench: BalancerPlayerInput[];
   metrics: BalanceMetrics;
   /** Present when the split was picked from several variants. */
   variety?: VarietyInfo;

@@ -11,7 +11,6 @@ import { BalanceListSessionStore } from '../balance-list-session.store';
 import {
   BALANCE_BUTTON_ID,
   BALANCE_SELECT_ID,
-  DEFAULT_TEAM_SIZE,
   REROLL_BUTTON_ID,
   SESSION_EXPIRED_MESSAGE,
   VARIETY_LEVELS,
@@ -27,10 +26,6 @@ import {
   buildBalanceResultEmbed,
   buildBalanceResultRow,
 } from '../views/balance-teams.view';
-
-function teamCountFor(playerCount: number): number {
-  return Math.max(2, Math.round(playerCount / DEFAULT_TEAM_SIZE));
-}
 
 /** The "Balance" section of the ephemeral manager panel. */
 @Injectable()
@@ -55,8 +50,7 @@ export class BalanceManagerCommand {
       embeds: [
         buildBalanceChooserEmbed(
           players.length,
-          teamCountFor(players.length),
-          DEFAULT_TEAM_SIZE,
+          this.balancerService.planTeams(players.length),
         ),
       ],
       components: buildBalanceChooserComponents(
@@ -110,11 +104,13 @@ export class BalanceManagerCommand {
       return;
     }
 
+    // Exhaustive search can take a couple of seconds: acknowledge first.
+    await interaction.deferUpdate();
+
     let result: BalancedTeams;
     try {
       result = this.balancerService.balanceTeams(players, {
         algorithm: choice.algorithm,
-        teamCount: teamCountFor(players.length),
         variety:
           choice.mode === 'accurate'
             ? undefined
@@ -122,13 +118,13 @@ export class BalanceManagerCommand {
       });
     } catch (error) {
       if (error instanceof InvalidBalancerInputError) {
-        await interaction.reply({ content: error.message, ephemeral: true });
+        await interaction.followUp({ content: error.message, ephemeral: true });
         return;
       }
       throw error;
     }
 
-    await interaction.update({
+    await interaction.editReply({
       embeds: [buildBalanceResultEmbed(result, choice)],
       components: [buildBalanceResultRow(choice)],
     });

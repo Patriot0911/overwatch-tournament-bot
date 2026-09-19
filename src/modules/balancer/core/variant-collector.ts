@@ -4,14 +4,15 @@ import type { BalancingProblem, SlotAssignment } from './problem';
 const MAX_VARIANTS = 10_000;
 
 /**
- * Identifies an assignment regardless of team order and of the order of
- * players within a team's role, so equivalent splits share one key.
+ * Identifies an assignment regardless of team order, of the order of players
+ * within a team's role and of the order of the bench, so equivalent splits
+ * share one key. Who sits out is part of the split.
  */
 export function canonicalKey(
   problem: BalancingProblem,
   assignment: SlotAssignment,
 ): string {
-  return problem.teamSlots
+  const teams = problem.teamSlots
     .map((slotIndices) =>
       ROLES.map((role) =>
         slotIndices
@@ -23,6 +24,12 @@ export function canonicalKey(
     )
     .sort()
     .join('/');
+
+  const bench = assignment
+    .slice(problem.slots.length)
+    .sort((a, b) => a - b)
+    .join(',');
+  return bench ? `${teams}#${bench}` : teams;
 }
 
 /**

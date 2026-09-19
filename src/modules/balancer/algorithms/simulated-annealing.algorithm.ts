@@ -98,7 +98,7 @@ export class SimulatedAnnealingAlgorithm implements BalancerAlgorithm {
     problem: BalancingProblem,
     collector: VariantCollector,
   ): void {
-    const slotCount = problem.slots.length;
+    const slotCount = problem.players.length;
     const queue = collector.results();
     let evaluations = 0;
 
@@ -159,7 +159,7 @@ export class SimulatedAnnealingAlgorithm implements BalancerAlgorithm {
     collector?: VariantCollector,
   ): SlotAssignment {
     const { iterations, startTemperatureFactor, coolingRange } = this.options;
-    const slotCount = problem.slots.length;
+    const slotCount = problem.players.length;
 
     let current = start;
     let currentScore = evaluate(problem, current).score;
@@ -199,7 +199,7 @@ export class SimulatedAnnealingAlgorithm implements BalancerAlgorithm {
     start: SlotAssignment,
     collector?: VariantCollector,
   ): SlotAssignment {
-    const slotCount = problem.slots.length;
+    const slotCount = problem.players.length;
     let current = start;
     let currentScore = evaluate(problem, current).score;
 

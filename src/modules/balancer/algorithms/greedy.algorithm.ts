@@ -1,5 +1,9 @@
 import { ROLES } from '../balancer.constants';
-import type { BalancingProblem, SlotAssignment } from '../core/problem';
+import {
+  withBench,
+  type BalancingProblem,
+  type SlotAssignment,
+} from '../core/problem';
 import { roleRating } from '../core/ratings';
 import { SlotAllocator } from '../core/slot-allocator';
 import type { BalancerAlgorithm } from './balancer-algorithm.interface';
@@ -45,6 +49,6 @@ export class GreedyAlgorithm implements BalancerAlgorithm {
       totals[target] += value;
     }
 
-    return assignment;
+    return withBench(problem, assignment);
   }
 }

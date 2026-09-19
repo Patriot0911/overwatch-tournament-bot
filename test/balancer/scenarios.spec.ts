@@ -42,6 +42,12 @@ interface Scenario {
     perfect?: boolean;
     /** Annealing must match the exhaustive optimum (needs both algorithms in the run). */
     annealingOptimal?: boolean;
+    /** How many players must be left out of the teams. */
+    benchCount?: number;
+    /** Everyone on the bench must be one of these players. */
+    benchAmong?: string[];
+    /** Exactly these players sit out when annealing or exhaustive search decide. */
+    optimizerBench?: string[];
     /** Players that every algorithm must place in exactly this role. */
     forcedRoles?: Record<string, Role>;
   };
@@ -143,10 +149,35 @@ function registerScenario(scenario: Scenario): void {
         for (const [id, role] of Object.entries(expected.forcedRoles ?? {})) {
           assert.equal(roleOf(result, id), role, `${id} must play ${role}`);
         }
+
+        const benched = result.bench.map((player) => player.discordId).sort();
+        if (expected.benchCount !== undefined) {
+          assert.equal(benched.length, expected.benchCount, 'bench size');
+        }
+        for (const id of benched) {
+          if (expected.benchAmong) {
+            assert.ok(
+              expected.benchAmong.includes(id),
+              `${id} should not sit out`,
+            );
+          }
+        }
+        if (
+          expected.optimizerBench &&
+          (algorithm === 'exhaustive' || algorithm === 'simulated-annealing')
+        ) {
+          assert.deepEqual(
+            benched,
+            [...expected.optimizerBench].sort(),
+            'who sits out',
+          );
+        }
       });
 
       it(`${algorithm}: is deterministic`, () => {
-        const first = service.balanceTeams(players, { ...options, algorithm });
+        const first =
+          results.get(algorithm) ??
+          service.balanceTeams(players, { ...options, algorithm });
         const second = service.balanceTeams(players, { ...options, algorithm });
         assert.equal(splitKey(first), splitKey(second));
         assert.equal(first.metrics.score, second.metrics.score);

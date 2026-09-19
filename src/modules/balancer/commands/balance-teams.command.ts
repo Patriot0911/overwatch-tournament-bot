@@ -144,6 +144,13 @@ function formatResult(result: BalancedTeams): string {
     }
   });
 
+  if (result.bench.length > 0) {
+    lines.push(
+      '',
+      `Bench (${result.bench.length}): ${result.bench.map((player) => player.username).join(', ')}`,
+    );
+  }
+
   lines.push(
     '',
     `Spread: total ${metrics.totalSpread}, roles ${metrics.roleSpread}, stars ${metrics.starSpread}`,

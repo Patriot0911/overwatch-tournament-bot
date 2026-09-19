@@ -20,6 +20,7 @@ import {
   VARIETY_LEVELS,
   type AlgorithmName,
 } from '../balancer.constants';
+import type { TeamPlan } from '../core/problem';
 import type { BalancedTeams } from '../interfaces/balanced-teams.interface';
 import { formatRankValue } from '../rank-parser';
 import { baseEmbed } from './balance-list.view';
@@ -31,6 +32,7 @@ const MODE_DISPLAY: Record<BalanceMode, { emoji: string; label: string }> = {
 };
 
 const SELECT_DESCRIPTION_LIMIT = 100;
+const EMBED_FIELD_VALUE_LIMIT = 1024;
 
 export interface AlgorithmOption {
   name: AlgorithmName;
@@ -53,14 +55,18 @@ function truncate(text: string, limit: number): string {
 
 export function buildBalanceChooserEmbed(
   playerCount: number,
-  teamCount: number,
-  teamSize: number,
+  plan: TeamPlan,
 ): EmbedBuilder {
+  const { teamCount, teamSize, benchCount, enough } = plan;
+  const summary = enough
+    ? `👥 **${playerCount}** players → **${teamCount}** teams of **${teamSize}**${benchCount > 0 ? ` · 🪑 **${benchCount}** on the bench` : ''}`
+    : `⚠️ **${playerCount}** players is too few: at least **${teamCount * teamSize}** are needed for ${teamCount} teams of ${teamSize}`;
+
   return baseEmbed()
     .setTitle('⚖️ Balance teams')
     .setDescription(
       [
-        `👥 **${playerCount}** players → **${teamCount}** teams of **${teamSize}**`,
+        summary,
         '',
         '**Pick an algorithm and a mode**',
         `${MODE_DISPLAY.accurate.emoji} **Accurate**: the single best split found`,
@@ -68,6 +74,7 @@ export function buildBalanceChooserEmbed(
         `${MODE_DISPLAY.wide.emoji} **Wide**: the same, with up to ${percent(VARIETY_LEVELS.wide)} room, so more variety`,
         '',
         '*Varied and Wide are available for algorithms that can list many splits.*',
+        '*When players are left over, Simulated annealing and Exhaustive choose who sits out to get the best balance (Varied and Wide change it between runs); the other algorithms bench the weakest players.*',
       ].join('\n'),
     );
 }
@@ -132,7 +139,7 @@ export function buildBalanceResultEmbed(
     }
   }
 
-  return baseEmbed()
+  const embed = baseEmbed()
     .setTitle('⚖️ Balanced teams')
     .setDescription(lines.join('\n'))
     .addFields(
@@ -147,6 +154,20 @@ export function buildBalanceResultEmbed(
         inline: true,
       })),
     );
+
+  if (result.bench.length > 0) {
+    embed.addFields({
+      name: `🪑 Bench · ${result.bench.length}`,
+      value: truncate(
+        result.bench
+          .map((player) => escapeMarkdown(player.username))
+          .join(', '),
+        EMBED_FIELD_VALUE_LIMIT,
+      ),
+    });
+  }
+
+  return embed;
 }
 
 export function buildBalanceResultRow(

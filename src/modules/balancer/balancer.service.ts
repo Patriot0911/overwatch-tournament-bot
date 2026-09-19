@@ -15,8 +15,10 @@ import { InvalidBalancerInputError } from './core/errors';
 import { evaluate } from './core/evaluate';
 import {
   createProblem,
+  planTeams,
   type BalancingProblem,
   type SlotAssignment,
+  type TeamPlan,
 } from './core/problem';
 import { roleRating } from './core/ratings';
 import { createRng } from './core/rng';
@@ -44,13 +46,28 @@ export class BalancerService {
     }));
   }
 
+  /**
+   * How many teams a pool of this size makes: as many full teams as fit (at
+   * least two), or exactly `options.teamCount`. Extra players sit out.
+   */
+  planTeams(
+    playerCount: number,
+    options: Pick<BalancerOptions, 'composition' | 'teamCount'> = {},
+  ): TeamPlan {
+    return planTeams(
+      playerCount,
+      options.composition ?? DEFAULT_COMPOSITION,
+      options.teamCount,
+    );
+  }
+
   isAlgorithmName(value: string): value is AlgorithmName {
     return (ALGORITHM_NAMES as readonly string[]).includes(value);
   }
 
   /**
    * @throws InvalidBalancerInputError when the pool cannot be balanced, e.g.
-   * wrong player count or not enough players able to play a role.
+   * too few players for two teams or not enough players able to play a role.
    */
   balanceTeams(
     players: BalancerPlayerInput[],
@@ -140,7 +157,7 @@ export class BalancerService {
   ): BalancingProblem {
     return createProblem(players, {
       composition: options.composition ?? DEFAULT_COMPOSITION,
-      teamCount: options.teamCount ?? 2,
+      teamCount: options.teamCount,
       roleWeights: { ...DEFAULT_ROLE_WEIGHTS, ...options.roleWeights },
       weights: { ...DEFAULT_WEIGHTS, ...options.weights },
       seed: options.seed ?? DEFAULT_SEED,
@@ -170,6 +187,11 @@ export class BalancerService {
       totalRating: metrics.teamTotals[team],
     }));
 
-    return { algorithm, teams, metrics };
+    const bench = assignment
+      .slice(problem.slots.length)
+      .sort((a, b) => a - b)
+      .map((index) => problem.players[index]);
+
+    return { algorithm, teams, bench, metrics };
   }
 }

@@ -3,8 +3,8 @@
   "scenarios": [
     {
       "name": "nine-players-for-two-teams",
-      "description": "Nine players cannot fill two teams of five.",
-      "expect": {"error":"Expected 10 players (2 teams x 5), got 9"},
+      "description": "Nine players cannot fill even two teams of five.",
+      "expect": {"error":"Not enough players for 2 teams of 5: need at least 10, got 9"},
       "players": [
         {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
         {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
@@ -18,28 +18,10 @@
       ]
     },
     {
-      "name": "eleven-players-for-two-teams",
-      "description": "Eleven players are one too many.",
-      "expect": {"error":"Expected 10 players (2 teams x 5), got 11"},
-      "players": [
-        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
-        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
-        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
-        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
-        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
-        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
-        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
-        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
-        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
-        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"},
-        {"discordId":"k","username":"k","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"}
-      ]
-    },
-    {
       "name": "seven-players-for-three-teams",
-      "description": "Seven players for three teams of three.",
+      "description": "Three teams of three were requested but seven players are not enough.",
       "options": {"teamCount":3,"composition":{"tank":1,"damage":1,"support":1}},
-      "expect": {"error":"Expected 9 players (3 teams x 3), got 7"},
+      "expect": {"error":"Not enough players for 3 teams of 3: need at least 9, got 7"},
       "players": [
         {"discordId":"p1","username":"p1","tank":"Bronze 2","damage":"Platinum 3","support":"Diamond 4"},
         {"discordId":"p2","username":"p2","tank":"Silver 5","damage":"Diamond 2","support":"Silver 1"},
@@ -162,9 +144,9 @@
     },
     {
       "name": "every-algorithm-reports-the-same-count-error",
-      "description": "Every algorithm reports the same player-count problem.",
+      "description": "Every algorithm reports the same shortage.",
       "algorithms": ["snake-draft","greedy","exhaustive","simulated-annealing"],
-      "expect": {"error":"Expected 10 players"},
+      "expect": {"error":"Not enough players for 2 teams of 5"},
       "players": [
         {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
         {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
@@ -354,6 +336,104 @@
         {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
         {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
         {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "two-players-only",
+      "description": "Two players cannot form two teams of five.",
+      "expect": {"error":"need at least 10, got 2"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"b","username":"b","tank":"Gold 2","damage":"Gold 2","support":"Gold 2"}
+      ]
+    },
+    {
+      "name": "explicit-team-count-needs-more-players",
+      "description": "Twelve players cannot make three teams of five.",
+      "algorithms": ["snake-draft","greedy","simulated-annealing"],
+      "options": {"teamCount":3},
+      "expect": {"error":"Not enough players for 3 teams of 5: need at least 15, got 12"},
+      "players": [
+        {"discordId":"p1","username":"p1","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"p2","username":"p2","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p3","username":"p3","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p4","username":"p4","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p5","username":"p5","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p6","username":"p6","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"p7","username":"p7","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"p8","username":"p8","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"p9","username":"p9","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"p10","username":"p10","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"},
+        {"discordId":"p11","username":"p11","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"p12","username":"p12","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"}
+      ]
+    },
+    {
+      "name": "too-few-players-for-a-big-composition",
+      "description": "Two teams of ten need twenty players.",
+      "algorithms": ["snake-draft","greedy","simulated-annealing"],
+      "options": {"composition":{"tank":2,"damage":4,"support":4}},
+      "expect": {"error":"need at least 20, got 19"},
+      "players": [
+        {"discordId":"p1","username":"p1","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"p2","username":"p2","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p3","username":"p3","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p4","username":"p4","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p5","username":"p5","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p6","username":"p6","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"p7","username":"p7","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"p8","username":"p8","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"p9","username":"p9","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"p10","username":"p10","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"},
+        {"discordId":"p11","username":"p11","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"p12","username":"p12","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p13","username":"p13","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p14","username":"p14","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p15","username":"p15","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p16","username":"p16","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"p17","username":"p17","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"p18","username":"p18","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"p19","username":"p19","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"}
+      ]
+    },
+    {
+      "name": "surplus-players-do-not-help-a-missing-role",
+      "description": "Twelve players, but only one can tank: the shortage of a role is still an error.",
+      "algorithms": ["snake-draft","greedy","simulated-annealing"],
+      "expect": {"error":"Not enough players who can play tank: need 2, have 1"},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Gold 3"},
+        {"discordId":"a","username":"a","damage":"Bronze 2"},
+        {"discordId":"b","username":"b","damage":"Silver 5"},
+        {"discordId":"c","username":"c","damage":"Gold 1"},
+        {"discordId":"d","username":"d","damage":"Gold 4"},
+        {"discordId":"e","username":"e","damage":"Platinum 3"},
+        {"discordId":"f","username":"f","support":"Gold 1"},
+        {"discordId":"g","username":"g","support":"Gold 4"},
+        {"discordId":"h","username":"h","support":"Platinum 3"},
+        {"discordId":"i","username":"i","support":"Diamond 2"},
+        {"discordId":"j","username":"j","support":"Emerald 5"},
+        {"discordId":"k","username":"k","support":"Master 1"}
+      ]
+    },
+    {
+      "name": "surplus-players-do-not-fix-a-role-conflict",
+      "description": "Twelve players, but the only tank players are also needed as supports.",
+      "algorithms": ["snake-draft","greedy","simulated-annealing"],
+      "expect": {"error":"cannot fill every role slot together"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 1","support":"Gold 2"},
+        {"discordId":"b","username":"b","tank":"Gold 3","support":"Gold 4"},
+        {"discordId":"g","username":"g","support":"Gold 5"},
+        {"discordId":"h","username":"h","support":"Silver 1"},
+        {"discordId":"c","username":"c","damage":"Bronze 2"},
+        {"discordId":"d","username":"d","damage":"Silver 5"},
+        {"discordId":"e","username":"e","damage":"Gold 1"},
+        {"discordId":"f","username":"f","damage":"Gold 4"},
+        {"discordId":"i","username":"i","damage":"Platinum 3"},
+        {"discordId":"j","username":"j","damage":"Diamond 2"},
+        {"discordId":"k","username":"k","damage":"Emerald 5"},
+        {"discordId":"l","username":"l","damage":"Master 1"}
       ]
     }
   ]
