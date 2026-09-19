@@ -7,7 +7,6 @@ import {
   type ChatInputCommandInteraction,
   type ModalSubmitInteraction,
 } from 'discord.js';
-import type { ZodIssue } from 'zod';
 import { Command } from '../../discord/decorators/command.decorator';
 import { ModalSubmit } from '../../discord/decorators/modal.decorator';
 import {
@@ -20,7 +19,10 @@ import {
   BalancerService,
   InvalidBalancerInputError,
 } from '../balancer.service';
-import { balancerInputSchema } from '../dto/balancer-input.schema';
+import {
+  balancerInputSchema,
+  formatZodIssues,
+} from '../dto/balancer-input.schema';
 import { balancerOptionsSchema } from '../dto/balancer-options.schema';
 import type { BalancedTeams } from '../interfaces/balanced-teams.interface';
 import balanceTeamsMeta from './balance-teams.meta';
@@ -99,7 +101,7 @@ export class BalanceTeamsCommand {
     const players = balancerInputSchema.safeParse(playersJson.value);
     if (!players.success) {
       await interaction.editReply(
-        `Invalid players data: ${describeIssues(players.error.issues)}`,
+        `Invalid players data: ${formatZodIssues(players.error)}`,
       );
       return;
     }
@@ -107,7 +109,7 @@ export class BalanceTeamsCommand {
     const options = balancerOptionsSchema.safeParse(optionsJson.value);
     if (!options.success) {
       await interaction.editReply(
-        `Invalid options: ${describeIssues(options.error.issues)}`,
+        `Invalid options: ${formatZodIssues(options.error)}`,
       );
       return;
     }
@@ -134,12 +136,6 @@ function tryParseJson(raw: string): { value: unknown } | undefined {
   } catch {
     return undefined;
   }
-}
-
-function describeIssues(issues: ZodIssue[]): string {
-  return issues
-    .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-    .join('; ');
 }
 
 function formatResult(result: BalancedTeams): string {
