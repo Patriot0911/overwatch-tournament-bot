@@ -1,0 +1,126 @@
+{
+  "description": "Role multipliers change how strong a team is; results must respect them everywhere.",
+  "scenarios": [
+    {
+      "name": "tank-double-weight",
+      "description": "Tank ratings count twice.",
+      "options": {"roleWeights":{"tank":2}},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "support-triple-weight",
+      "description": "Support ratings count three times.",
+      "options": {"roleWeights":{"support":3}},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "all-roles-half-weight",
+      "description": "Every role counts half: scores scale down, structure stays.",
+      "options": {"roleWeights":{"tank":0.5,"damage":0.5,"support":0.5}},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "fractional-tank-weight",
+      "description": "A tank multiplier of 1.6.",
+      "options": {"roleWeights":{"tank":1.6}},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "extreme-tank-weight",
+      "description": "A tank multiplier of 100.",
+      "options": {"roleWeights":{"tank":100}},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "weights-with-forced-roles",
+      "description": "Single-role players with a tank multiplier of 1.6.",
+      "options": {"roleWeights":{"tank":1.6}},
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank","d1":"damage","d2":"damage","d3":"damage","d4":"damage","s1":"support","s2":"support","s3":"support","s4":"support"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Master 3"},
+        {"discordId":"t2","username":"t2","tank":"Gold 2"},
+        {"discordId":"d1","username":"d1","damage":"Diamond 1"},
+        {"discordId":"d2","username":"d2","damage":"Platinum 5"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 2"},
+        {"discordId":"d4","username":"d4","damage":"Gold 3"},
+        {"discordId":"s1","username":"s1","support":"Diamond 3"},
+        {"discordId":"s2","username":"s2","support":"Gold 5"},
+        {"discordId":"s3","username":"s3","support":"Platinum 2"},
+        {"discordId":"s4","username":"s4","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "mirror-teams-stay-perfect-with-weights",
+      "description": "Two identical teams stay perfectly balanced under any multipliers.",
+      "options": {"roleWeights":{"tank":3,"damage":0.7,"support":0.25}},
+      "expect": {"perfect":true},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Diamond 2"},
+        {"discordId":"t2","username":"t2","tank":"Diamond 2"},
+        {"discordId":"d1","username":"d1","damage":"Gold 1"},
+        {"discordId":"d2","username":"d2","damage":"Gold 1"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 3"},
+        {"discordId":"d4","username":"d4","damage":"Emerald 3"},
+        {"discordId":"s1","username":"s1","support":"Platinum 4"},
+        {"discordId":"s2","username":"s2","support":"Platinum 4"},
+        {"discordId":"s3","username":"s3","support":"Diamond 5"},
+        {"discordId":"s4","username":"s4","support":"Diamond 5"}
+      ]
+    }
+  ]
+}

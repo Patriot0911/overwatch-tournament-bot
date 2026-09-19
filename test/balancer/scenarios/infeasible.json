@@ -1,0 +1,360 @@
+{
+  "description": "Well-formed JSON that still cannot be balanced, or has bad options, with the reason.",
+  "scenarios": [
+    {
+      "name": "nine-players-for-two-teams",
+      "description": "Nine players cannot fill two teams of five.",
+      "expect": {"error":"Expected 10 players (2 teams x 5), got 9"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"}
+      ]
+    },
+    {
+      "name": "eleven-players-for-two-teams",
+      "description": "Eleven players are one too many.",
+      "expect": {"error":"Expected 10 players (2 teams x 5), got 11"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"},
+        {"discordId":"k","username":"k","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"}
+      ]
+    },
+    {
+      "name": "seven-players-for-three-teams",
+      "description": "Seven players for three teams of three.",
+      "options": {"teamCount":3,"composition":{"tank":1,"damage":1,"support":1}},
+      "expect": {"error":"Expected 9 players (3 teams x 3), got 7"},
+      "players": [
+        {"discordId":"p1","username":"p1","tank":"Bronze 2","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p2","username":"p2","tank":"Silver 5","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p3","username":"p3","tank":"Gold 1","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p4","username":"p4","tank":"Gold 4","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p5","username":"p5","tank":"Platinum 3","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"p6","username":"p6","tank":"Diamond 2","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"p7","username":"p7","tank":"Emerald 5","damage":"Bronze 2","support":"Platinum 3"}
+      ]
+    },
+    {
+      "name": "not-enough-tanks",
+      "description": "Only one player can tank, two are needed.",
+      "expect": {"error":"Not enough players who can play tank: need 2, have 1"},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Gold 3"},
+        {"discordId":"a","username":"a","damage":"Bronze 2"},
+        {"discordId":"b","username":"b","damage":"Silver 5"},
+        {"discordId":"c","username":"c","damage":"Gold 1"},
+        {"discordId":"d","username":"d","damage":"Gold 4"},
+        {"discordId":"e","username":"e","support":"Gold 1"},
+        {"discordId":"f","username":"f","support":"Gold 4"},
+        {"discordId":"g","username":"g","support":"Platinum 3"},
+        {"discordId":"h","username":"h","support":"Diamond 2"},
+        {"discordId":"i","username":"i","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "not-enough-damage",
+      "description": "Only three players can play damage, four are needed.",
+      "expect": {"error":"Not enough players who can play damage: need 4, have 3"},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Gold 3"},
+        {"discordId":"t2","username":"t2","tank":"Gold 4"},
+        {"discordId":"a","username":"a","damage":"Bronze 2"},
+        {"discordId":"b","username":"b","damage":"Silver 5"},
+        {"discordId":"c","username":"c","damage":"Gold 1"},
+        {"discordId":"e","username":"e","support":"Gold 1"},
+        {"discordId":"f","username":"f","support":"Gold 4"},
+        {"discordId":"g","username":"g","support":"Platinum 3"},
+        {"discordId":"h","username":"h","support":"Diamond 2"},
+        {"discordId":"i","username":"i","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "not-enough-support",
+      "description": "Only three players can support, four are needed.",
+      "expect": {"error":"Not enough players who can play support: need 4, have 3"},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Gold 3"},
+        {"discordId":"t2","username":"t2","tank":"Gold 4"},
+        {"discordId":"a","username":"a","damage":"Bronze 2"},
+        {"discordId":"b","username":"b","damage":"Silver 5"},
+        {"discordId":"c","username":"c","damage":"Gold 1"},
+        {"discordId":"d","username":"d","damage":"Gold 4"},
+        {"discordId":"e","username":"e","damage":"Platinum 3"},
+        {"discordId":"f","username":"f","support":"Gold 1"},
+        {"discordId":"g","username":"g","support":"Gold 4"},
+        {"discordId":"h","username":"h","support":"Platinum 3"}
+      ]
+    },
+    {
+      "name": "roles-conflict-between-scarce-players",
+      "description": "Each role has enough candidates on its own, but the two tank players are also the only extra supports.",
+      "expect": {"error":"cannot fill every role slot together"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 1","support":"Gold 2"},
+        {"discordId":"b","username":"b","tank":"Gold 3","support":"Gold 4"},
+        {"discordId":"g","username":"g","support":"Gold 5"},
+        {"discordId":"h","username":"h","support":"Silver 1"},
+        {"discordId":"c","username":"c","damage":"Bronze 2"},
+        {"discordId":"d","username":"d","damage":"Silver 5"},
+        {"discordId":"e","username":"e","damage":"Gold 1"},
+        {"discordId":"f","username":"f","damage":"Gold 4"},
+        {"discordId":"i","username":"i","damage":"Platinum 3"},
+        {"discordId":"j","username":"j","damage":"Diamond 2"}
+      ]
+    },
+    {
+      "name": "empty-composition",
+      "description": "A composition with no slots.",
+      "options": {"composition":{"tank":0,"damage":0,"support":0}},
+      "expect": {"error":"Team composition is empty"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "exhaustive-refuses-large-pool",
+      "description": "Fifteen players are too many to enumerate every split.",
+      "algorithms": ["exhaustive"],
+      "options": {"teamCount":3},
+      "expect": {"error":"cannot handle a pool of this size"},
+      "players": [
+        {"discordId":"p1","username":"p1","tank":"Bronze 2","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p2","username":"p2","tank":"Silver 5","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p3","username":"p3","tank":"Gold 1","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p4","username":"p4","tank":"Gold 4","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p5","username":"p5","tank":"Platinum 3","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"p6","username":"p6","tank":"Diamond 2","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"p7","username":"p7","tank":"Emerald 5","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"p8","username":"p8","tank":"Master 1","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"p9","username":"p9","tank":"Diamond 4","damage":"Gold 1","support":"Emerald 5"},
+        {"discordId":"p10","username":"p10","tank":"Silver 1","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"p11","username":"p11","tank":"Bronze 2","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"p12","username":"p12","tank":"Silver 5","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"p13","username":"p13","tank":"Gold 1","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"p14","username":"p14","tank":"Gold 4","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"p15","username":"p15","tank":"Platinum 3","damage":"Diamond 4","support":"Gold 1"}
+      ]
+    },
+    {
+      "name": "every-algorithm-reports-the-same-count-error",
+      "description": "Every algorithm reports the same player-count problem.",
+      "algorithms": ["snake-draft","greedy","exhaustive","simulated-annealing"],
+      "expect": {"error":"Expected 10 players"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"}
+      ]
+    },
+    {
+      "name": "options-team-count-one",
+      "description": "One team is not balancing.",
+      "options": {"teamCount":1},
+      "expect": {"optionsError":"greater than or equal to 2"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-fractional-team-count",
+      "description": "Team counts are whole numbers.",
+      "options": {"teamCount":2.5},
+      "expect": {"optionsError":"integer"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-team-count-string",
+      "description": "Team counts are numbers.",
+      "options": {"teamCount":"2"},
+      "expect": {"optionsError":"Expected number"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-negative-composition",
+      "description": "A negative slot count.",
+      "options": {"composition":{"tank":-1,"damage":2,"support":2}},
+      "expect": {"optionsError":"greater than or equal to 0"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-fractional-composition",
+      "description": "A fractional slot count.",
+      "options": {"composition":{"tank":1,"damage":1.5,"support":2}},
+      "expect": {"optionsError":"integer"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-partial-composition",
+      "description": "A composition must name all three roles.",
+      "options": {"composition":{"tank":1,"damage":2}},
+      "expect": {"optionsError":"Required"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-zero-weight",
+      "description": "A role multiplier of zero.",
+      "options": {"roleWeights":{"tank":0}},
+      "expect": {"optionsError":"greater than 0"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-negative-weight",
+      "description": "A negative role multiplier.",
+      "options": {"roleWeights":{"support":-1}},
+      "expect": {"optionsError":"greater than 0"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-unknown-key",
+      "description": "A misspelled option is not silently ignored.",
+      "options": {"teamcount":2},
+      "expect": {"optionsError":"Unrecognized key"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "options-unknown-role-weight",
+      "description": "A weight for a role that does not exist.",
+      "options": {"roleWeights":{"healer":2}},
+      "expect": {"optionsError":"Unrecognized key"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Bronze 2","support":"Bronze 2"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Silver 5","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Gold 1","support":"Gold 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Gold 4","support":"Gold 4"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Platinum 3","support":"Platinum 3"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 2","support":"Diamond 2"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Emerald 5","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Master 1","support":"Master 1"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Diamond 4","support":"Diamond 4"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Silver 1","support":"Silver 1"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "description": "Regular 5v5 pools (2 teams; 1 tank, 2 damage, 2 support) with different shapes of ratings.",
+  "scenarios": [
+    {
+      "name": "identical-flex-players",
+      "description": "Ten identical flex players: any split is perfect.",
+      "expect": {"perfect":true},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"c","username":"c","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"d","username":"d","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"e","username":"e","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"f","username":"f","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"g","username":"g","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"h","username":"h","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"i","username":"i","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"},
+        {"discordId":"j","username":"j","tank":"Gold 3","damage":"Gold 3","support":"Gold 3"}
+      ]
+    },
+    {
+      "name": "mirror-teams",
+      "description": "Every player has a twin with the same rating and role: two identical teams exist.",
+      "expect": {"perfect":true,"forcedRoles":{"t1":"tank","t2":"tank","d1":"damage","d2":"damage","d3":"damage","d4":"damage","s1":"support","s2":"support","s3":"support","s4":"support"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Diamond 2"},
+        {"discordId":"t2","username":"t2","tank":"Diamond 2"},
+        {"discordId":"d1","username":"d1","damage":"Gold 1"},
+        {"discordId":"d2","username":"d2","damage":"Gold 1"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 3"},
+        {"discordId":"d4","username":"d4","damage":"Emerald 3"},
+        {"discordId":"s1","username":"s1","support":"Platinum 4"},
+        {"discordId":"s2","username":"s2","support":"Platinum 4"},
+        {"discordId":"s3","username":"s3","support":"Diamond 5"},
+        {"discordId":"s4","username":"s4","support":"Diamond 5"}
+      ]
+    },
+    {
+      "name": "all-flex-varied-ranks",
+      "description": "Everyone can play everything with different ranks per role.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Gold 4","support":"Master 1"},
+        {"discordId":"b","username":"b","tank":"Silver 5","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"c","username":"c","tank":"Gold 1","damage":"Diamond 2","support":"Silver 1"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Emerald 5","support":"Bronze 2"},
+        {"discordId":"e","username":"e","tank":"Platinum 3","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Diamond 4","support":"Gold 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Silver 1","support":"Gold 4"},
+        {"discordId":"h","username":"h","tank":"Master 1","damage":"Bronze 2","support":"Platinum 3"},
+        {"discordId":"i","username":"i","tank":"Diamond 4","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 1","support":"Emerald 5"}
+      ]
+    },
+    {
+      "name": "single-champion-star",
+      "description": "One Champion among nine Bronze players: a star that cannot be evened out.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"b","username":"b","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"c","username":"c","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"d","username":"d","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"e","username":"e","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"f","username":"f","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"g","username":"g","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"h","username":"h","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"i","username":"i","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"},
+        {"discordId":"j","username":"j","tank":"Bronze 3","damage":"Bronze 3","support":"Bronze 3"}
+      ]
+    },
+    {
+      "name": "numeric-custom-ratings",
+      "description": "Plain numbers that are not exact rank values.",
+      "players": [
+        {"discordId":"a","username":"a","tank":1234,"damage":1111,"support":1357},
+        {"discordId":"b","username":"b","tank":987,"damage":888,"support":1086},
+        {"discordId":"c","username":"c","tank":4321,"damage":3889,"support":4753},
+        {"discordId":"d","username":"d","tank":2500,"damage":2250,"support":2750},
+        {"discordId":"e","username":"e","tank":3111,"damage":2800,"support":3422},
+        {"discordId":"f","username":"f","tank":1999,"damage":1799,"support":2199},
+        {"discordId":"g","username":"g","tank":5050,"damage":4545,"support":5555},
+        {"discordId":"h","username":"h","tank":777,"damage":699,"support":855},
+        {"discordId":"i","username":"i","tank":2718,"damage":2446,"support":2990},
+        {"discordId":"j","username":"j","tank":3141,"damage":2827,"support":3455}
+      ]
+    },
+    {
+      "name": "ascending-ratings",
+      "description": "Ratings 100, 200, ... 1000 (all roles equal).",
+      "players": [
+        {"discordId":"a","username":"a","tank":100,"damage":100,"support":100},
+        {"discordId":"b","username":"b","tank":200,"damage":200,"support":200},
+        {"discordId":"c","username":"c","tank":300,"damage":300,"support":300},
+        {"discordId":"d","username":"d","tank":400,"damage":400,"support":400},
+        {"discordId":"e","username":"e","tank":500,"damage":500,"support":500},
+        {"discordId":"f","username":"f","tank":600,"damage":600,"support":600},
+        {"discordId":"g","username":"g","tank":700,"damage":700,"support":700},
+        {"discordId":"h","username":"h","tank":800,"damage":800,"support":800},
+        {"discordId":"i","username":"i","tank":900,"damage":900,"support":900},
+        {"discordId":"j","username":"j","tank":1000,"damage":1000,"support":1000}
+      ]
+    },
+    {
+      "name": "descending-ratings",
+      "description": "Same as ascending but listed from the strongest.",
+      "players": [
+        {"discordId":"a","username":"a","tank":1000,"damage":1000,"support":1000},
+        {"discordId":"b","username":"b","tank":900,"damage":900,"support":900},
+        {"discordId":"c","username":"c","tank":800,"damage":800,"support":800},
+        {"discordId":"d","username":"d","tank":700,"damage":700,"support":700},
+        {"discordId":"e","username":"e","tank":600,"damage":600,"support":600},
+        {"discordId":"f","username":"f","tank":500,"damage":500,"support":500},
+        {"discordId":"g","username":"g","tank":400,"damage":400,"support":400},
+        {"discordId":"h","username":"h","tank":300,"damage":300,"support":300},
+        {"discordId":"i","username":"i","tank":200,"damage":200,"support":200},
+        {"discordId":"j","username":"j","tank":100,"damage":100,"support":100}
+      ]
+    },
+    {
+      "name": "two-grandmasters-eight-silvers",
+      "description": "Two very strong players and eight weak ones.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Grandmaster 2","damage":"Grandmaster 2","support":"Grandmaster 2"},
+        {"discordId":"b","username":"b","tank":"Grandmaster 2","damage":"Grandmaster 2","support":"Grandmaster 2"},
+        {"discordId":"c","username":"c","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"d","username":"d","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"e","username":"e","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"f","username":"f","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"g","username":"g","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"h","username":"h","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"i","username":"i","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"},
+        {"discordId":"j","username":"j","tank":"Silver 4","damage":"Silver 4","support":"Silver 4"}
+      ]
+    },
+    {
+      "name": "alternating-champion-bronze",
+      "description": "Ranks alternate between the extremes.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"b","username":"b","tank":"Bronze 5","damage":"Bronze 5","support":"Bronze 5"},
+        {"discordId":"c","username":"c","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"d","username":"d","tank":"Bronze 5","damage":"Bronze 5","support":"Bronze 5"},
+        {"discordId":"e","username":"e","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"f","username":"f","tank":"Bronze 5","damage":"Bronze 5","support":"Bronze 5"},
+        {"discordId":"g","username":"g","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"h","username":"h","tank":"Bronze 5","damage":"Bronze 5","support":"Bronze 5"},
+        {"discordId":"i","username":"i","tank":"Champion","damage":"Champion","support":"Champion"},
+        {"discordId":"j","username":"j","tank":"Bronze 5","damage":"Bronze 5","support":"Bronze 5"}
+      ]
+    },
+    {
+      "name": "two-roles-rotating",
+      "description": "Everyone plays exactly two of the three roles, rotating.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Platinum 3"},
+        {"discordId":"b","username":"b","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"c","username":"c","support":"Gold 1","tank":"Emerald 5"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Master 1"},
+        {"discordId":"e","username":"e","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"f","username":"f","support":"Diamond 2","tank":"Silver 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Bronze 2"},
+        {"discordId":"h","username":"h","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"i","username":"i","support":"Diamond 4","tank":"Gold 1"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 4"}
+      ]
+    },
+    {
+      "name": "smallest-legal-rating-everyone",
+      "description": "Ratings of 1: the smallest legal value.",
+      "players": [
+        {"discordId":"a","username":"a","tank":1,"damage":1,"support":1},
+        {"discordId":"b","username":"b","tank":1,"damage":1,"support":1},
+        {"discordId":"c","username":"c","tank":1,"damage":1,"support":1},
+        {"discordId":"d","username":"d","tank":1,"damage":1,"support":1},
+        {"discordId":"e","username":"e","tank":1,"damage":1,"support":1},
+        {"discordId":"f","username":"f","tank":1,"damage":1,"support":1},
+        {"discordId":"g","username":"g","tank":1,"damage":1,"support":1},
+        {"discordId":"h","username":"h","tank":1,"damage":1,"support":1},
+        {"discordId":"i","username":"i","tank":1,"damage":1,"support":1},
+        {"discordId":"j","username":"j","tank":1,"damage":1,"support":1}
+      ]
+    }
+  ]
+}

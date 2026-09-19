@@ -41,16 +41,18 @@ export class VariantCollector {
     private readonly tolerance: number,
   ) {}
 
-  add(assignment: SlotAssignment, score: number): void {
-    if (score === Infinity) return;
+  /** Returns true when the assignment is a variant that was not known yet. */
+  add(assignment: SlotAssignment, score: number): boolean {
+    if (score === Infinity) return false;
     if (score < this.bestScore) this.bestScore = score;
-    if (score > this.bestScore + this.tolerance) return;
+    if (score > this.bestScore + this.tolerance) return false;
 
     const key = canonicalKey(this.problem, assignment);
-    if (!this.found.has(key)) {
-      this.found.set(key, { assignment: assignment.slice(), score });
-    }
+    if (this.found.has(key)) return false;
+
+    this.found.set(key, { assignment: assignment.slice(), score });
     if (this.found.size > MAX_VARIANTS * 2) this.prune();
+    return true;
   }
 
   /** Distinct assignments, best score first. */

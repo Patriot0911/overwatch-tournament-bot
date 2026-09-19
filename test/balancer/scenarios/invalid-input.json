@@ -1,0 +1,245 @@
+{
+  "description": "JSON that must be rejected before balancing, with the reason.",
+  "scenarios": [
+    {
+      "name": "empty-array",
+      "description": "An empty list.",
+      "expect": {"schemaError":"at least 2"},
+      "players": []
+    },
+    {
+      "name": "single-player",
+      "description": "One player cannot form teams.",
+      "expect": {"schemaError":"at least 2"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "not-an-array",
+      "description": "An object instead of an array.",
+      "expect": {"schemaError":"Expected array"},
+      "players": {"discordId":"a","username":"a","tank":"Gold 3"}
+    },
+    {
+      "name": "string-instead-of-array",
+      "description": "A string instead of an array.",
+      "expect": {"schemaError":"Expected array"},
+      "players": "a,b,c"
+    },
+    {
+      "name": "null-players",
+      "description": "null instead of an array.",
+      "expect": {"schemaError":"Expected array"},
+      "players": null
+    },
+    {
+      "name": "duplicate-discord-ids",
+      "description": "Two players share an id.",
+      "expect": {"schemaError":"discordId values must be unique"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"a","username":"a","damage":"Gold 3"},
+        {"discordId":"c","username":"c","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "no-roles-at-all",
+      "description": "A player without any role.",
+      "expect": {"schemaError":"At least one of tank, damage or support"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b"}
+      ]
+    },
+    {
+      "name": "all-roles-null",
+      "description": "Every role is null.",
+      "expect": {"schemaError":"At least one of tank, damage or support"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":null,"damage":null,"support":null}
+      ]
+    },
+    {
+      "name": "unknown-rank-name",
+      "description": "A rank that does not exist.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Wood 9"}
+      ]
+    },
+    {
+      "name": "division-too-high",
+      "description": "Division 6 does not exist.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Gold 6"}
+      ]
+    },
+    {
+      "name": "division-zero",
+      "description": "Division 0 does not exist.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Gold 0"}
+      ]
+    },
+    {
+      "name": "champion-with-division",
+      "description": "Champion has no divisions.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Champion 1"}
+      ]
+    },
+    {
+      "name": "grand-master-with-space",
+      "description": "The tier is one word.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"Grand Master 1"}
+      ]
+    },
+    {
+      "name": "empty-rank-string",
+      "description": "An empty string is not a rank.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":""}
+      ]
+    },
+    {
+      "name": "whitespace-rank-string",
+      "description": "A blank string is not a rank.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"   "}
+      ]
+    },
+    {
+      "name": "zero-rating",
+      "description": "Zero is not a rating.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":0}
+      ]
+    },
+    {
+      "name": "negative-rating",
+      "description": "Negative rating.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":-5}
+      ]
+    },
+    {
+      "name": "fractional-rating",
+      "description": "Ratings are whole numbers.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":1200.5}
+      ]
+    },
+    {
+      "name": "negative-number-string",
+      "description": "A negative number as text.",
+      "expect": {"schemaError":"Invalid rank"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":"-100"}
+      ]
+    },
+    {
+      "name": "boolean-rating",
+      "description": "A boolean is not a rating.",
+      "expect": {"schemaError":"Invalid input"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":true}
+      ]
+    },
+    {
+      "name": "array-rating",
+      "description": "An array is not a rating.",
+      "expect": {"schemaError":"Invalid input"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"b","tank":[1200]}
+      ]
+    },
+    {
+      "name": "numeric-discord-id",
+      "description": "ids must be strings.",
+      "expect": {"schemaError":"Expected string"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":12345,"username":"b","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "empty-discord-id",
+      "description": "ids must not be empty.",
+      "expect": {"schemaError":"at least 1"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"","username":"b","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "missing-discord-id",
+      "description": "ids are required.",
+      "expect": {"schemaError":"Required"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"username":"b","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "empty-username",
+      "description": "Names must not be empty.",
+      "expect": {"schemaError":"at least 1"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","username":"","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "missing-username",
+      "description": "Names are required.",
+      "expect": {"schemaError":"Required"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        {"discordId":"b","tank":"Gold 3"}
+      ]
+    },
+    {
+      "name": "player-is-not-an-object",
+      "description": "A number in place of a player.",
+      "expect": {"schemaError":"Expected object"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        42
+      ]
+    },
+    {
+      "name": "player-is-null",
+      "description": "null in place of a player.",
+      "expect": {"schemaError":"Expected object"},
+      "players": [
+        {"discordId":"a","username":"a","tank":"Gold 3"},
+        null
+      ]
+    }
+  ]
+}

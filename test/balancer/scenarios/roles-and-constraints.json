@@ -1,0 +1,172 @@
+{
+  "description": "Players who can play only some roles: role restrictions are hard constraints and scarce roles are settled first.",
+  "scenarios": [
+    {
+      "name": "exact-single-role-split",
+      "description": "Each player plays exactly one role and the counts match the slots.",
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank","d1":"damage","d2":"damage","d3":"damage","d4":"damage","s1":"support","s2":"support","s3":"support","s4":"support"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Master 3"},
+        {"discordId":"t2","username":"t2","tank":"Gold 2"},
+        {"discordId":"d1","username":"d1","damage":"Diamond 1"},
+        {"discordId":"d2","username":"d2","damage":"Platinum 5"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 2"},
+        {"discordId":"d4","username":"d4","damage":"Gold 3"},
+        {"discordId":"s1","username":"s1","support":"Diamond 3"},
+        {"discordId":"s2","username":"s2","support":"Gold 5"},
+        {"discordId":"s3","username":"s3","support":"Platinum 2"},
+        {"discordId":"s4","username":"s4","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "explicit-null-roles",
+      "description": "Roles a player does not play are given as null instead of omitted.",
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank","d1":"damage","d2":"damage","d3":"damage","d4":"damage","s1":"support","s2":"support","s3":"support","s4":"support"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Master 3","damage":null,"support":null},
+        {"discordId":"t2","username":"t2","tank":"Gold 2","damage":null,"support":null},
+        {"discordId":"d1","username":"d1","damage":"Diamond 1","tank":null,"support":null},
+        {"discordId":"d2","username":"d2","damage":"Platinum 5","tank":null,"support":null},
+        {"discordId":"d3","username":"d3","damage":"Emerald 2","tank":null,"support":null},
+        {"discordId":"d4","username":"d4","damage":"Gold 3","tank":null,"support":null},
+        {"discordId":"s1","username":"s1","support":"Diamond 3","tank":null,"damage":null},
+        {"discordId":"s2","username":"s2","support":"Gold 5","tank":null,"damage":null},
+        {"discordId":"s3","username":"s3","support":"Platinum 2","tank":null,"damage":null},
+        {"discordId":"s4","username":"s4","support":"Silver 1","tank":null,"damage":null}
+      ]
+    },
+    {
+      "name": "tank-only-players-stay-out-of-damage",
+      "description": "Two tank-only players and eight damage/support players.",
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Diamond 1"},
+        {"discordId":"t2","username":"t2","tank":"Gold 1"},
+        {"discordId":"a","username":"a","damage":"Master 5","support":"Gold 2"},
+        {"discordId":"b","username":"b","damage":"Diamond 4","support":"Silver 3"},
+        {"discordId":"c","username":"c","damage":"Gold 5","support":"Diamond 1"},
+        {"discordId":"d","username":"d","damage":"Platinum 1","support":"Platinum 2"},
+        {"discordId":"e","username":"e","damage":"Silver 2","support":"Emerald 4"},
+        {"discordId":"f","username":"f","damage":"Emerald 1","support":"Gold 3"},
+        {"discordId":"g","username":"g","damage":"Bronze 1","support":"Master 2"},
+        {"discordId":"h","username":"h","damage":"Gold 2","support":"Bronze 4"}
+      ]
+    },
+    {
+      "name": "scarce-tank-flex-players-forced",
+      "description": "Only two players can tank; they also list damage, but two tanks are required, so they must tank.",
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Gold 5","damage":"Gold 4"},
+        {"discordId":"t2","username":"t2","tank":"Gold 4","damage":"Gold 3"},
+        {"discordId":"d1","username":"d1","damage":"Diamond 1"},
+        {"discordId":"d2","username":"d2","damage":"Platinum 5"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 2"},
+        {"discordId":"d4","username":"d4","damage":"Gold 3"},
+        {"discordId":"s1","username":"s1","support":"Diamond 3"},
+        {"discordId":"s2","username":"s2","support":"Gold 5"},
+        {"discordId":"s3","username":"s3","support":"Platinum 2"},
+        {"discordId":"s4","username":"s4","support":"Silver 1"}
+      ]
+    },
+    {
+      "name": "scarce-support-flex-players-forced",
+      "description": "Exactly four players can support, two of them also list damage; all four must support.",
+      "expect": {"forcedRoles":{"f1":"support","f2":"support","t1":"tank","t2":"tank"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Diamond 2"},
+        {"discordId":"t2","username":"t2","tank":"Platinum 1"},
+        {"discordId":"d1","username":"d1","damage":"Master 1"},
+        {"discordId":"d2","username":"d2","damage":"Emerald 3"},
+        {"discordId":"d3","username":"d3","damage":"Gold 2"},
+        {"discordId":"d4","username":"d4","damage":"Silver 5"},
+        {"discordId":"s1","username":"s1","support":"Diamond 5"},
+        {"discordId":"s2","username":"s2","support":"Gold 1"},
+        {"discordId":"f1","username":"f1","damage":"Platinum 4","support":"Platinum 3"},
+        {"discordId":"f2","username":"f2","damage":"Bronze 3","support":"Emerald 1"}
+      ]
+    },
+    {
+      "name": "every-player-two-roles",
+      "description": "Everyone plays two roles, rotating through the pairs.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Platinum 3"},
+        {"discordId":"b","username":"b","damage":"Silver 5","support":"Diamond 2"},
+        {"discordId":"c","username":"c","support":"Gold 1","tank":"Emerald 5"},
+        {"discordId":"d","username":"d","tank":"Gold 4","damage":"Master 1"},
+        {"discordId":"e","username":"e","damage":"Platinum 3","support":"Diamond 4"},
+        {"discordId":"f","username":"f","support":"Diamond 2","tank":"Silver 1"},
+        {"discordId":"g","username":"g","tank":"Emerald 5","damage":"Bronze 2"},
+        {"discordId":"h","username":"h","damage":"Master 1","support":"Silver 5"},
+        {"discordId":"i","username":"i","support":"Diamond 4","tank":"Gold 1"},
+        {"discordId":"j","username":"j","tank":"Silver 1","damage":"Gold 4"}
+      ]
+    },
+    {
+      "name": "damage-heavy-pool",
+      "description": "Lots of damage players, a couple of tanks and a tight support pool with one flex.",
+      "expect": {"forcedRoles":{"t1":"tank","t2":"tank"}},
+      "players": [
+        {"discordId":"t1","username":"t1","tank":"Diamond 1"},
+        {"discordId":"t2","username":"t2","tank":"Gold 3"},
+        {"discordId":"d1","username":"d1","damage":"Master 4"},
+        {"discordId":"d2","username":"d2","damage":"Diamond 3"},
+        {"discordId":"d3","username":"d3","damage":"Emerald 5"},
+        {"discordId":"d4","username":"d4","damage":"Platinum 2"},
+        {"discordId":"s1","username":"s1","support":"Diamond 1"},
+        {"discordId":"s2","username":"s2","support":"Gold 2"},
+        {"discordId":"s3","username":"s3","support":"Silver 4"},
+        {"discordId":"x","username":"x","damage":"Gold 1","support":"Platinum 3"}
+      ]
+    },
+    {
+      "name": "specialists-with-weak-offroles",
+      "description": "Everyone is good at one role and weak at the others.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Diamond 2","damage":"Bronze 4","support":"Bronze 4"},
+        {"discordId":"b","username":"b","tank":"Bronze 4","damage":"Emerald 5","support":"Bronze 4"},
+        {"discordId":"c","username":"c","tank":"Bronze 4","damage":"Bronze 4","support":"Master 1"},
+        {"discordId":"d","username":"d","tank":"Diamond 4","damage":"Bronze 4","support":"Bronze 4"},
+        {"discordId":"e","username":"e","tank":"Bronze 4","damage":"Silver 1","support":"Bronze 4"},
+        {"discordId":"f","username":"f","tank":"Bronze 4","damage":"Bronze 4","support":"Bronze 2"},
+        {"discordId":"g","username":"g","tank":"Silver 5","damage":"Bronze 4","support":"Bronze 4"},
+        {"discordId":"h","username":"h","tank":"Bronze 4","damage":"Gold 1","support":"Bronze 4"},
+        {"discordId":"i","username":"i","tank":"Bronze 4","damage":"Bronze 4","support":"Gold 4"},
+        {"discordId":"j","username":"j","tank":"Platinum 3","damage":"Bronze 4","support":"Bronze 4"}
+      ]
+    },
+    {
+      "name": "three-role-flex-everyone",
+      "description": "Ten flex players, each with three different ranks.",
+      "players": [
+        {"discordId":"a","username":"a","tank":"Bronze 2","damage":"Silver 5","support":"Gold 1"},
+        {"discordId":"b","username":"b","tank":"Gold 4","damage":"Diamond 4","support":"Silver 5"},
+        {"discordId":"c","username":"c","tank":"Emerald 5","damage":"Diamond 2","support":"Bronze 2"},
+        {"discordId":"d","username":"d","tank":"Silver 1","damage":"Gold 1","support":"Silver 1"},
+        {"discordId":"e","username":"e","tank":"Gold 1","damage":"Silver 1","support":"Diamond 4"},
+        {"discordId":"f","username":"f","tank":"Diamond 2","damage":"Emerald 5","support":"Master 1"},
+        {"discordId":"g","username":"g","tank":"Diamond 4","damage":"Gold 4","support":"Emerald 5"},
+        {"discordId":"h","username":"h","tank":"Silver 5","damage":"Bronze 2","support":"Diamond 2"},
+        {"discordId":"i","username":"i","tank":"Platinum 3","damage":"Master 1","support":"Platinum 3"},
+        {"discordId":"j","username":"j","tank":"Master 1","damage":"Platinum 3","support":"Gold 4"}
+      ]
+    },
+    {
+      "name": "three-slot-cycle-needed",
+      "description": "Regression: reaching the best split needs a three-player rotation, because a plain swap would put someone in a role they cannot play. Annealing once stopped at a score 2.3 times worse than optimal here.",
+      "expect": {"annealingOptimal":true},
+      "players": [
+        {"discordId":"ana","username":"ana","tank":"Diamond 2","damage":"Gold 1"},
+        {"discordId":"bo","username":"bo","tank":"Gold 3"},
+        {"discordId":"cy","username":"cy","damage":"Master 4","support":"Platinum 2"},
+        {"discordId":"di","username":"di","damage":"Diamond 5"},
+        {"discordId":"ed","username":"ed","damage":"Emerald 1","support":"Gold 5"},
+        {"discordId":"fi","username":"fi","support":"Diamond 1"},
+        {"discordId":"gus","username":"gus","support":"Emerald 3","damage":"Gold 2"},
+        {"discordId":"hal","username":"hal","tank":"Platinum 1","support":"Silver 1"},
+        {"discordId":"ivy","username":"ivy","damage":"Platinum 4"},
+        {"discordId":"jo","username":"jo","support":"Master 1"}
+      ]
+    }
+  ]
+}

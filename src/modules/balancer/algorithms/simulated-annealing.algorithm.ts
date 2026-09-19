@@ -23,6 +23,8 @@ const DEFAULT_OPTIONS: SimulatedAnnealingOptions = {
 };
 
 const CYCLE_MOVE_PROBABILITY = 0.5;
+/** Bounds the work of walking across equally good splits. */
+const MAX_EXPANSION_EVALUATIONS = 300_000;
 
 /**
  * Moves the players of the given slots one step along the list (with two slots
@@ -82,7 +84,49 @@ export class SimulatedAnnealingAlgorithm implements BalancerAlgorithm {
   findVariants(problem: BalancingProblem, tolerance: number): SlotAssignment[] {
     const collector = new VariantCollector(problem, tolerance);
     this.search(problem, collector);
+    this.expandVariants(problem, collector);
     return collector.results();
+  }
+
+  /**
+   * The search only reports what it happened to visit. Equally good splits form
+   * plateaus it does not walk across, so this explores the neighbours of every
+   * variant found (breadth first, best first) until no new one turns up or the
+   * evaluation budget runs out.
+   */
+  private expandVariants(
+    problem: BalancingProblem,
+    collector: VariantCollector,
+  ): void {
+    const slotCount = problem.slots.length;
+    const queue = collector.results();
+    let evaluations = 0;
+
+    for (
+      let head = 0;
+      head < queue.length && evaluations < MAX_EXPANSION_EVALUATIONS;
+      head++
+    ) {
+      const state = queue[head];
+
+      const visit = (slots: number[]): void => {
+        const candidate = rotate(state, slots);
+        evaluations++;
+        if (collector.add(candidate, evaluate(problem, candidate).score)) {
+          queue.push(candidate);
+        }
+      };
+
+      for (let a = 0; a < slotCount - 1; a++) {
+        for (let b = a + 1; b < slotCount; b++) {
+          visit([a, b]);
+          for (let c = b + 1; c < slotCount; c++) {
+            visit([a, b, c]);
+            visit([a, c, b]);
+          }
+        }
+      }
+    }
   }
 
   private search(
