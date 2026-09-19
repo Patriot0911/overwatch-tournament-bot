@@ -22,6 +22,7 @@ import {
 import {
   balancerInputSchema,
   formatZodIssues,
+  tryParseJson,
 } from '../dto/balancer-input.schema';
 import { balancerOptionsSchema } from '../dto/balancer-options.schema';
 import type { BalancedTeams } from '../interfaces/balanced-teams.interface';
@@ -127,14 +128,6 @@ export class BalanceTeamsCommand {
       }
       throw error;
     }
-  }
-}
-
-function tryParseJson(raw: string): { value: unknown } | undefined {
-  try {
-    return { value: JSON.parse(raw) };
-  } catch {
-    return undefined;
   }
 }
 

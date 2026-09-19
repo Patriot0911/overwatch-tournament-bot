@@ -19,3 +19,15 @@ export async function refreshPublicList(
     components: [buildPublicButtonsRow()],
   });
 }
+
+/** Closes the public message: the final list stays, its buttons go away. */
+export async function closePublicList(
+  interaction: Pick<Interaction, 'channel'>,
+  publicMessageId: string,
+  players: BalancerPlayerInput[],
+): Promise<void> {
+  await interaction.channel?.messages.edit(publicMessageId, {
+    embeds: [buildListEmbed(players, { ended: true })],
+    components: [],
+  });
+}

@@ -13,7 +13,14 @@ export interface BalancerOptions {
   composition?: RoleComposition;
   roleWeights?: Partial<RoleWeights>;
   weights?: Partial<ObjectiveWeights>;
-  /** Makes randomised algorithms reproducible. */
+  /**
+   * Pick a random split among all distinct ones within a tolerance of the best
+   * one found, instead of always returning the single best. The tolerance is a
+   * fraction of the players' average best-role rating. Only algorithms that
+   * can produce variants support it.
+   */
+  variety?: { toleranceFactor?: number };
+  /** Makes randomised algorithms and the variant pick reproducible. */
   seed?: number;
 }
 
@@ -40,8 +47,18 @@ export interface BalanceMetrics {
   score: number;
 }
 
+export interface VarietyInfo {
+  /** How many distinct splits the result was picked from. */
+  count: number;
+  tolerance: number;
+  /** Score of the best split among them. */
+  bestScore: number;
+}
+
 export interface BalancedTeams {
   algorithm: AlgorithmName;
   teams: BalancedTeam[];
   metrics: BalanceMetrics;
+  /** Present when the split was picked from several variants. */
+  variety?: VarietyInfo;
 }

@@ -2,6 +2,7 @@ import { ROLES } from '../balancer.constants';
 import { evaluate } from '../core/evaluate';
 import type { BalancingProblem, SlotAssignment } from '../core/problem';
 import { roleRating } from '../core/ratings';
+import { VariantCollector } from '../core/variant-collector';
 import type { BalancerAlgorithm } from './balancer-algorithm.interface';
 
 const MAX_EVALUATIONS = 2_000_000;
@@ -31,8 +32,8 @@ function countRoleArrangements(problem: BalancingProblem): number {
 
 /**
  * Ground truth for small pools: tries every split of players into teams and,
- * for each split, every placement of players into role slots, keeping the
- * assignment with the best score.
+ * for each split, every placement of players into role slots. Every valid
+ * assignment is visited exactly once.
  */
 export class ExhaustiveAlgorithm implements BalancerAlgorithm {
   readonly name = 'exhaustive';
@@ -47,6 +48,32 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
   }
 
   solve(problem: BalancingProblem): SlotAssignment {
+    let best: SlotAssignment = [];
+    let bestScore = Infinity;
+
+    this.enumerate(problem, (assignment, score) => {
+      if (score < bestScore) {
+        bestScore = score;
+        best = assignment.slice();
+      }
+    });
+
+    return best;
+  }
+
+  findVariants(problem: BalancingProblem, tolerance: number): SlotAssignment[] {
+    const collector = new VariantCollector(problem, tolerance);
+    this.enumerate(problem, (assignment, score) =>
+      collector.add(assignment, score),
+    );
+    return collector.results();
+  }
+
+  /** `visit` receives a reused array: copy it to keep it. */
+  private enumerate(
+    problem: BalancingProblem,
+    visit: (assignment: SlotAssignment, score: number) => void,
+  ): void {
     const { players, teamCount, teamSize, composition, slots, teamSlots } =
       problem;
     const teams: number[][] = Array.from({ length: teamCount }, () => []);
@@ -61,16 +88,10 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
       ),
     );
 
-    let best: SlotAssignment = [];
-    let bestScore = Infinity;
-
     const arrangeTeam = (team: number): void => {
       if (team === teamCount) {
         const { score } = evaluate(problem, assignment);
-        if (score < bestScore) {
-          bestScore = score;
-          best = assignment.slice();
-        }
+        if (score !== Infinity) visit(assignment, score);
         return;
       }
 
@@ -114,6 +135,5 @@ export class ExhaustiveAlgorithm implements BalancerAlgorithm {
     };
 
     splitPlayers(0);
-    return best;
   }
 }

@@ -16,6 +16,7 @@ import {
   PLAYER_FORM_FIELD_DAMAGE,
   PLAYER_FORM_FIELD_SUPPORT,
   PLAYER_FORM_FIELD_TANK,
+  SESSION_EXPIRED_MESSAGE,
 } from '../balancer.constants';
 import {
   balancerPlayerInputSchema,
@@ -28,9 +29,6 @@ import {
   buildPublicButtonsRow,
   buildRankInputRow,
 } from '../views/balance-list.view';
-
-const SESSION_EXPIRED_MESSAGE =
-  'Session expired. Please run /setup-balancer again.';
 
 /** Controls of the public balancer message: Join, Leave and Call Manager. */
 @Injectable()
@@ -152,20 +150,26 @@ export class PublicBalancerCommand {
 
   @ButtonClick(CALL_MANAGER_BUTTON_ID)
   async handleCallManagerButton(interaction: ButtonInteraction): Promise<void> {
-    if (
-      !interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)
-    ) {
+    const players = this.sessionStore.get(interaction.message.id);
+    if (!players) {
       await interaction.reply({
-        content: 'Only administrators can manage the balancer.',
+        content: SESSION_EXPIRED_MESSAGE,
         ephemeral: true,
       });
       return;
     }
 
-    const players = this.sessionStore.get(interaction.message.id);
-    if (!players) {
+    const isAdmin = interaction.memberPermissions?.has(
+      PermissionFlagsBits.Administrator,
+    );
+    const isOwner = this.sessionStore.isOwner(
+      interaction.message.id,
+      interaction.user.id,
+    );
+    if (!isAdmin && !isOwner) {
       await interaction.reply({
-        content: SESSION_EXPIRED_MESSAGE,
+        content:
+          'Only administrators or the person who set up this balancer can manage it.',
         ephemeral: true,
       });
       return;

@@ -11,9 +11,11 @@ import {
 import {
   ADD_PLAYER_BUTTON_ID,
   BACK_BUTTON_ID,
+  BALANCE_BUTTON_ID,
   BALANCE_LIST_BANNER_URL,
   BALANCE_LIST_COLOR,
   CALL_MANAGER_BUTTON_ID,
+  DEV_BUTTON_ID,
   EDIT_LIST_BUTTON_ID,
   EDIT_LIST_PAGE_BUTTON_ID,
   EDIT_LIST_PAGE_SIZE,
@@ -29,10 +31,13 @@ import {
 import type { BalancerPlayerInput } from '../dto/balancer-input.schema';
 import { formatRankValue } from '../rank-parser';
 
-export function buildListEmbed(players: BalancerPlayerInput[]): EmbedBuilder {
+export function buildListEmbed(
+  players: BalancerPlayerInput[],
+  { ended = false }: { ended?: boolean } = {},
+): EmbedBuilder {
   return baseEmbed()
-    .setTitle('⚖️ Balance list')
-    .setDescription(buildListDescription(players));
+    .setTitle(ended ? '⚖️ Balance list · session ended' : '⚖️ Balance list')
+    .setDescription(buildListDescription(players, ended));
 }
 
 export function buildPublicButtonsRow(): ActionRowBuilder<ButtonBuilder> {
@@ -65,6 +70,16 @@ export function buildManagerButtonsRow(
       .setLabel('Edit List')
       .setStyle(ButtonStyle.Primary)
       .setDisabled(players.length === 0),
+    new ButtonBuilder()
+      .setCustomId(`${BALANCE_BUTTON_ID}:open`)
+      .setLabel('Balance')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(players.length < 2),
+    new ButtonBuilder()
+      .setCustomId(`${DEV_BUTTON_ID}:open`)
+      .setLabel('Dev')
+      .setEmoji('🛠️')
+      .setStyle(ButtonStyle.Secondary),
   );
 }
 
@@ -177,7 +192,7 @@ export function buildRankInputRow(
   );
 }
 
-function baseEmbed(): EmbedBuilder {
+export function baseEmbed(): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(BALANCE_LIST_COLOR)
     .setImage(BALANCE_LIST_BANNER_URL);
@@ -195,7 +210,7 @@ function playerRoleLines(player: BalancerPlayerInput): string[] {
 
 function playerBlock(player: BalancerPlayerInput, index: number): string {
   const header = `**${index + 1}. ${escapeMarkdown(player.username)}**`;
-  return [header, ...playerRoleLines(player)].join('\n');
+  return [header, ...playerRoleLines(player)].join('');
 }
 
 function buildListSummary(players: BalancerPlayerInput[]): string {
@@ -210,10 +225,15 @@ function buildListSummary(players: BalancerPlayerInput[]): string {
 }
 
 // Players that do not fit into the embed are still in the list, only hidden.
-function buildListDescription(players: BalancerPlayerInput[]): string {
+function buildListDescription(
+  players: BalancerPlayerInput[],
+  ended: boolean,
+): string {
   const summary = buildListSummary(players);
   if (players.length === 0) {
-    return `${summary}\n\n*No players yet. Press **Join** to sign up.*`;
+    return ended
+      ? `${summary}\n\n*The session ended with no players.*`
+      : `${summary}\n\n*No players yet. Press **Join** to sign up.*`;
   }
 
   const moreNoteReserve = 60;

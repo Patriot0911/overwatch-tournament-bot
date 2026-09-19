@@ -39,15 +39,21 @@ export const balancerPlayerInputSchema = z
     },
   );
 
+const hasUniqueDiscordIds = (players: { discordId: string }[]): boolean =>
+  new Set(players.map((player) => player.discordId)).size === players.length;
+
+const uniqueIdsIssue = { message: 'discordId values must be unique' };
+
+/** A list of any size, including empty. */
+export const balancerListSchema = z
+  .array(balancerPlayerInputSchema)
+  .refine(hasUniqueDiscordIds, uniqueIdsIssue);
+
+/** A list that is large enough to be balanced. */
 export const balancerInputSchema = z
   .array(balancerPlayerInputSchema)
   .min(2)
-  .refine(
-    (players) =>
-      new Set(players.map((player) => player.discordId)).size ===
-      players.length,
-    { message: 'discordId values must be unique' },
-  );
+  .refine(hasUniqueDiscordIds, uniqueIdsIssue);
 
 export type BalancerPlayerInput = z.infer<typeof balancerPlayerInputSchema>;
 export type BalancerInput = z.infer<typeof balancerInputSchema>;
@@ -61,4 +67,20 @@ export function formatZodIssues(error: ZodError): string {
 export function emptyToUndefined(text: string): string | undefined {
   const trimmed = text.trim();
   return trimmed.length === 0 ? undefined : trimmed;
+}
+
+export function tryParseJson(raw: string): { value: unknown } | undefined {
+  try {
+    return { value: JSON.parse(raw) };
+  } catch {
+    return undefined;
+  }
+}
+
+/** One player per line; ratings are exported as numbers so it round-trips. */
+export function stringifyPlayers(players: BalancerPlayerInput[]): string {
+  if (players.length === 0) return '[]';
+
+  const lines = players.map((player) => '  ' + JSON.stringify(player));
+  return ['[', lines.join(',\n'), ']'].join('\n');
 }

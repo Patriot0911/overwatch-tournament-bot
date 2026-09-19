@@ -59,7 +59,7 @@ export class SetupBalanceListCommand {
     });
 
     const message = await interaction.fetchReply();
-    this.sessionStore.set(message.id, players);
+    this.sessionStore.set(message.id, players, interaction.user.id);
   }
 
   private async showImportModal(
@@ -116,7 +116,7 @@ export class SetupBalanceListCommand {
     });
 
     const message = await interaction.fetchReply();
-    this.sessionStore.set(message.id, result.data);
+    this.sessionStore.set(message.id, result.data, interaction.user.id);
   }
 
   @ButtonClick(ADD_PLAYER_BUTTON_ID)

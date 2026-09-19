@@ -14,6 +14,19 @@ export const DEFAULT_COMPOSITION: RoleComposition = {
   support: 2,
 };
 
+export const DEFAULT_TEAM_SIZE = ROLES.reduce(
+  (sum, role) => sum + DEFAULT_COMPOSITION[role],
+  0,
+);
+
+/**
+ * "Varied" balancing picks randomly among every distinct split whose score is
+ * within this fraction of the average best-role rating of the best one found.
+ */
+export const VARIETY_LEVELS = { varied: 0.05, wide: 0.15 } as const;
+export type VarietyLevel = keyof typeof VARIETY_LEVELS;
+export const DEFAULT_VARIETY_LEVEL: VarietyLevel = 'varied';
+
 /**
  * Multiplier applied to a role's rating wherever team strength is measured, so
  * a role with a higher weight matters more for balance.
@@ -58,6 +71,28 @@ export const JOIN_BUTTON_ID = 'balancer:join-button';
 export const JOIN_MODAL_ID = 'balancer:join-modal';
 export const LEAVE_BUTTON_ID = 'balancer:leave-button';
 export const CALL_MANAGER_BUTTON_ID = 'balancer:call-manager-button';
+
+export const BALANCE_BUTTON_ID = 'balancer:balance-button';
+export const BALANCE_SELECT_ID = 'balancer:balance-select';
+export const REROLL_BUTTON_ID = 'balancer:reroll-button';
+
+export const DEV_BUTTON_ID = 'balancer:dev-button';
+export const COPY_JSON_BUTTON_ID = 'balancer:copy-json-button';
+export const APPLY_JSON_BUTTON_ID = 'balancer:apply-json-button';
+export const APPLY_JSON_MODAL_ID = 'balancer:apply-json-modal';
+export const APPLY_JSON_INPUT_ID = 'players-json';
+export const SET_OWNER_BUTTON_ID = 'balancer:set-owner-button';
+export const SET_OWNER_SELECT_ID = 'balancer:set-owner-select';
+export const RESPAWN_BUTTON_ID = 'balancer:respawn-button';
+export const END_SESSION_BUTTON_ID = 'balancer:end-session-button';
+export const END_SESSION_CONFIRM_BUTTON_ID = 'balancer:end-session-confirm';
+
+// Discord limits: message content, and a modal text input's prefilled value.
+export const MESSAGE_CONTENT_LIMIT = 2000;
+export const MODAL_INPUT_VALUE_LIMIT = 4000;
+
+export const SESSION_EXPIRED_MESSAGE =
+  'Session expired. Please run /setup-balancer again.';
 
 export const ADD_PLAYER_BUTTON_ID = 'balancer:add-player-button';
 export const ADD_PLAYER_MODAL_ID = 'balancer:add-player-modal';

@@ -5,6 +5,8 @@ import {
   DEFAULT_ALGORITHM,
   DEFAULT_COMPOSITION,
   DEFAULT_ROLE_WEIGHTS,
+  DEFAULT_VARIETY_LEVEL,
+  VARIETY_LEVELS,
   DEFAULT_WEIGHTS,
   ROLES,
   type AlgorithmName,
@@ -17,6 +19,7 @@ import {
   type SlotAssignment,
 } from './core/problem';
 import { roleRating } from './core/ratings';
+import { createRng } from './core/rng';
 import type { BalancerPlayerInput } from './dto/balancer-input.schema';
 import type {
   BalancedTeams,
@@ -29,10 +32,15 @@ const DEFAULT_SEED = 1;
 
 @Injectable()
 export class BalancerService {
-  listAlgorithms(): { name: AlgorithmName; description: string }[] {
+  listAlgorithms(): {
+    name: AlgorithmName;
+    description: string;
+    supportsVariety: boolean;
+  }[] {
     return ALGORITHM_NAMES.map((name) => ({
       name,
       description: ALGORITHMS[name].description,
+      supportsVariety: ALGORITHMS[name].findVariants !== undefined,
     }));
   }
 
@@ -58,7 +66,10 @@ export class BalancerService {
       );
     }
 
-    return this.buildResult(problem, name, algorithm.solve(problem));
+    if (!options.variety) {
+      return this.buildResult(problem, name, algorithm.solve(problem));
+    }
+    return this.balanceWithVariety(problem, name, options);
   }
 
   /** Runs every algorithm that supports the pool, best score first. */
@@ -73,6 +84,54 @@ export class BalancerService {
         this.buildResult(problem, name, ALGORITHMS[name].solve(problem)),
       )
       .sort((a, b) => a.metrics.score - b.metrics.score);
+  }
+
+  private balanceWithVariety(
+    problem: BalancingProblem,
+    name: AlgorithmName,
+    options: BalancerOptions,
+  ): BalancedTeams {
+    const algorithm = ALGORITHMS[name];
+    if (!algorithm.findVariants) {
+      throw new InvalidBalancerInputError(
+        `Algorithm "${name}" cannot produce varied results`,
+      );
+    }
+
+    const tolerance = this.toleranceFor(
+      problem,
+      options.variety?.toleranceFactor ?? VARIETY_LEVELS[DEFAULT_VARIETY_LEVEL],
+    );
+    const variants = algorithm.findVariants(problem, tolerance);
+    const random =
+      options.seed === undefined ? Math.random : createRng(options.seed);
+    const picked = variants[Math.floor(random() * variants.length)];
+
+    return {
+      ...this.buildResult(problem, name, picked),
+      variety: {
+        count: variants.length,
+        tolerance,
+        bestScore: evaluate(problem, variants[0]).score,
+      },
+    };
+  }
+
+  private toleranceFor(problem: BalancingProblem, factor: number): number {
+    const { players, roleWeights } = problem;
+    const meanBestRating =
+      players.reduce(
+        (sum, player) =>
+          sum +
+          Math.max(
+            ...ROLES.map(
+              (role) => (roleRating(player, role) ?? 0) * roleWeights[role],
+            ),
+          ),
+        0,
+      ) / players.length;
+
+    return meanBestRating * factor;
   }
 
   private createProblem(
