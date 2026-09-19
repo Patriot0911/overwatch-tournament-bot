@@ -26,10 +26,11 @@ import {
   emptyToUndefined,
   formatZodIssues,
 } from '../dto/balancer-input.schema';
+import { refreshPublicList } from '../balance-list.publisher';
 import {
   buildEditListComponents,
   buildListEmbed,
-  buildMainButtonsRow,
+  buildManagerButtonsRow,
   buildPlayerActionsRow,
   buildPlayerSummaryEmbed,
   buildRankInputRow,
@@ -169,8 +170,13 @@ export class EditBalanceListCommand {
 
     await interaction.update({
       embeds: [buildListEmbed(players)],
-      components: [buildMainButtonsRow(players)],
+      components: [buildManagerButtonsRow(players)],
     });
+    await refreshPublicList(
+      interaction,
+      this.sessionStore.resolve(sessionId),
+      players,
+    );
   }
 
   @ButtonClick(REMOVE_PLAYER_BUTTON_ID)
@@ -192,8 +198,13 @@ export class EditBalanceListCommand {
 
     await interaction.update({
       embeds: [buildListEmbed(players)],
-      components: [buildMainButtonsRow(players)],
+      components: [buildManagerButtonsRow(players)],
     });
+    await refreshPublicList(
+      interaction,
+      this.sessionStore.resolve(interaction.message.id),
+      players,
+    );
   }
 
   @ButtonClick(BACK_BUTTON_ID)
@@ -202,7 +213,7 @@ export class EditBalanceListCommand {
 
     await interaction.update({
       embeds: [buildListEmbed(players)],
-      components: [buildMainButtonsRow(players)],
+      components: [buildManagerButtonsRow(players)],
     });
   }
 }

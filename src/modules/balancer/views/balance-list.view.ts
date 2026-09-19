@@ -6,38 +6,53 @@ import {
   StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle,
+  escapeMarkdown,
 } from 'discord.js';
 import {
   ADD_PLAYER_BUTTON_ID,
   BACK_BUTTON_ID,
+  BALANCE_LIST_BANNER_URL,
+  BALANCE_LIST_COLOR,
+  CALL_MANAGER_BUTTON_ID,
   EDIT_LIST_BUTTON_ID,
   EDIT_LIST_PAGE_BUTTON_ID,
   EDIT_LIST_PAGE_SIZE,
   EDIT_LIST_SELECT_ID,
   EDIT_PLAYER_BUTTON_ID,
+  EMBED_DESCRIPTION_LIMIT,
+  JOIN_BUTTON_ID,
+  LEAVE_BUTTON_ID,
   REMOVE_PLAYER_BUTTON_ID,
+  ROLE_DISPLAY,
+  ROLES,
 } from '../balancer.constants';
 import type { BalancerPlayerInput } from '../dto/balancer-input.schema';
 import { formatRankValue } from '../rank-parser';
 
 export function buildListEmbed(players: BalancerPlayerInput[]): EmbedBuilder {
-  const embed = new EmbedBuilder()
-    .setTitle('Balance list')
-    .setDescription(`${players.length} player(s)`);
-
-  if (players.length > 0) {
-    embed.addFields(
-      players.map((player) => ({
-        name: playerLabel(player),
-        value: playerRanksSummary(player),
-      })),
-    );
-  }
-
-  return embed;
+  return baseEmbed()
+    .setTitle('⚖️ Balance list')
+    .setDescription(buildListDescription(players));
 }
 
-export function buildMainButtonsRow(
+export function buildPublicButtonsRow(): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`${JOIN_BUTTON_ID}:join`)
+      .setLabel('Join')
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId(`${LEAVE_BUTTON_ID}:leave`)
+      .setLabel('Leave')
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
+      .setCustomId(`${CALL_MANAGER_BUTTON_ID}:call`)
+      .setLabel('Call Manager')
+      .setStyle(ButtonStyle.Secondary),
+  );
+}
+
+export function buildManagerButtonsRow(
   players: BalancerPlayerInput[],
 ): ActionRowBuilder<ButtonBuilder> {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -123,9 +138,11 @@ export function buildPlayerActionsRow(
 export function buildPlayerSummaryEmbed(
   player: BalancerPlayerInput,
 ): EmbedBuilder {
-  return new EmbedBuilder()
-    .setTitle(playerLabel(player))
-    .setDescription(playerRanksSummary(player));
+  return baseEmbed()
+    .setTitle(escapeMarkdown(player.username))
+    .setDescription(
+      `\`${player.discordId}\`\n\n${playerRoleLines(player).join('\n')}`,
+    );
 }
 
 export function buildTextInputRow(
@@ -160,21 +177,59 @@ export function buildRankInputRow(
   );
 }
 
-function playerLabel(player: BalancerPlayerInput): string {
-  return `${player.username} (${player.discordId})`;
+function baseEmbed(): EmbedBuilder {
+  return new EmbedBuilder()
+    .setColor(BALANCE_LIST_COLOR)
+    .setImage(BALANCE_LIST_BANNER_URL);
 }
 
-function playerRanksSummary(player: BalancerPlayerInput): string {
-  const lines: string[] = [];
+function playerRoleLines(player: BalancerPlayerInput): string[] {
+  return ROLES.flatMap((role) => {
+    const rating = player[role];
+    if (rating === undefined) return [];
 
-  if (player.tank !== undefined)
-    lines.push(`Tank: ${player.tank} (${formatRankValue(player.tank)})`);
-  if (player.damage !== undefined)
-    lines.push(`Damage: ${player.damage} (${formatRankValue(player.damage)})`);
-  if (player.support !== undefined)
-    lines.push(
-      `Support: ${player.support} (${formatRankValue(player.support)})`,
-    );
+    const { emoji, label } = ROLE_DISPLAY[role];
+    return [`${emoji} ${label} · **${formatRankValue(rating)}** \`${rating}\``];
+  });
+}
 
-  return lines.length > 0 ? lines.join('\n') : '-';
+function playerBlock(player: BalancerPlayerInput, index: number): string {
+  const header = `**${index + 1}. ${escapeMarkdown(player.username)}**`;
+  return [header, ...playerRoleLines(player)].join('\n');
+}
+
+function buildListSummary(players: BalancerPlayerInput[]): string {
+  const count = players.length;
+  const roleCounts = ROLES.map((role) => {
+    const { emoji, label } = ROLE_DISPLAY[role];
+    const capable = players.filter((player) => player[role] !== undefined);
+    return `${emoji} ${label} **${capable.length}**`;
+  }).join(' · ');
+
+  return `👥 **${count}** player${count === 1 ? '' : 's'}\n${roleCounts}`;
+}
+
+// Players that do not fit into the embed are still in the list, only hidden.
+function buildListDescription(players: BalancerPlayerInput[]): string {
+  const summary = buildListSummary(players);
+  if (players.length === 0) {
+    return `${summary}\n\n*No players yet. Press **Join** to sign up.*`;
+  }
+
+  const moreNoteReserve = 60;
+  let description = summary;
+  let shown = 0;
+
+  for (const [index, player] of players.entries()) {
+    const next = `${description}\n\n${playerBlock(player, index)}`;
+    if (next.length > EMBED_DESCRIPTION_LIMIT - moreNoteReserve) break;
+    description = next;
+    shown++;
+  }
+
+  if (shown < players.length) {
+    description += `\n\n*…and ${players.length - shown} more player(s)*`;
+  }
+
+  return description;
 }

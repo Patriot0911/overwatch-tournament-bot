@@ -52,6 +52,12 @@ export const DEFAULT_WEIGHTS: ObjectiveWeights = {
 
 export const SETUP_BALANCE_LIST_MODAL_ID = 'balancer:setup-balance-list';
 export const SETUP_BALANCE_LIST_MODAL_INPUT_ID = 'players';
+export const SETUP_BALANCER_IMPORT_OPTION = 'import-json';
+
+export const JOIN_BUTTON_ID = 'balancer:join-button';
+export const JOIN_MODAL_ID = 'balancer:join-modal';
+export const LEAVE_BUTTON_ID = 'balancer:leave-button';
+export const CALL_MANAGER_BUTTON_ID = 'balancer:call-manager-button';
 
 export const ADD_PLAYER_BUTTON_ID = 'balancer:add-player-button';
 export const ADD_PLAYER_MODAL_ID = 'balancer:add-player-modal';
@@ -72,3 +78,15 @@ export const PLAYER_FORM_FIELD_DAMAGE = 'damage';
 export const PLAYER_FORM_FIELD_SUPPORT = 'support';
 
 export const EDIT_LIST_PAGE_SIZE = 25;
+
+export const BALANCE_LIST_COLOR = 0xf99e1a;
+// Thin transparent strip: an embed image forces the embed to its full width.
+export const BALANCE_LIST_BANNER_URL =
+  'https://i.postimg.cc/QCdt25qM/image-66.png';
+export const EMBED_DESCRIPTION_LIMIT = 4096;
+
+export const ROLE_DISPLAY: Record<Role, { emoji: string; label: string }> = {
+  tank: { emoji: '🔵', label: 'Tank' },
+  damage: { emoji: '🔴', label: 'Damage' },
+  support: { emoji: '🟢', label: 'Support' },
+};

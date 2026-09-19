@@ -22,16 +22,20 @@ import {
   PLAYER_FORM_FIELD_USERNAME,
   SETUP_BALANCE_LIST_MODAL_ID,
   SETUP_BALANCE_LIST_MODAL_INPUT_ID,
+  SETUP_BALANCER_IMPORT_OPTION,
 } from '../balancer.constants';
 import {
   balancerInputSchema,
   balancerPlayerInputSchema,
+  type BalancerPlayerInput,
   emptyToUndefined,
   formatZodIssues,
 } from '../dto/balancer-input.schema';
+import { refreshPublicList } from '../balance-list.publisher';
 import {
   buildListEmbed,
-  buildMainButtonsRow,
+  buildManagerButtonsRow,
+  buildPublicButtonsRow,
   buildRankInputRow,
   buildTextInputRow,
 } from '../views/balance-list.view';
@@ -43,6 +47,24 @@ export class SetupBalanceListCommand {
 
   @Command(setupBalanceListMeta())
   async handle(interaction: ChatInputCommandInteraction): Promise<void> {
+    if (interaction.options.getBoolean(SETUP_BALANCER_IMPORT_OPTION)) {
+      await this.showImportModal(interaction);
+      return;
+    }
+
+    const players: BalancerPlayerInput[] = [];
+    await interaction.reply({
+      embeds: [buildListEmbed(players)],
+      components: [buildPublicButtonsRow()],
+    });
+
+    const message = await interaction.fetchReply();
+    this.sessionStore.set(message.id, players);
+  }
+
+  private async showImportModal(
+    interaction: ChatInputCommandInteraction,
+  ): Promise<void> {
     const playersInput = new TextInputBuilder()
       .setCustomId(SETUP_BALANCE_LIST_MODAL_INPUT_ID)
       .setLabel('Players JSON')
@@ -54,7 +76,7 @@ export class SetupBalanceListCommand {
 
     const modal = new ModalBuilder()
       .setCustomId(`${SETUP_BALANCE_LIST_MODAL_ID}:submit`)
-      .setTitle('Setup balance list')
+      .setTitle('Setup balancer')
       .addComponents(
         new ActionRowBuilder<TextInputBuilder>().addComponents(playersInput),
       );
@@ -64,8 +86,6 @@ export class SetupBalanceListCommand {
 
   @ModalSubmit(SETUP_BALANCE_LIST_MODAL_ID)
   async handleSubmit(interaction: ModalSubmitInteraction): Promise<void> {
-    await interaction.deferReply({ ephemeral: true });
-
     const raw = interaction.fields.getTextInputValue(
       SETUP_BALANCE_LIST_MODAL_INPUT_ID,
     );
@@ -74,25 +94,28 @@ export class SetupBalanceListCommand {
     try {
       parsedJson = JSON.parse(raw);
     } catch {
-      await interaction.editReply(
-        'Invalid JSON. Please check the format and try again.',
-      );
+      await interaction.reply({
+        content: 'Invalid JSON. Please check the format and try again.',
+        ephemeral: true,
+      });
       return;
     }
 
     const result = balancerInputSchema.safeParse(parsedJson);
     if (!result.success) {
-      await interaction.editReply(
-        `Invalid players data: ${formatZodIssues(result.error)}`,
-      );
+      await interaction.reply({
+        content: `Invalid players data: ${formatZodIssues(result.error)}`,
+        ephemeral: true,
+      });
       return;
     }
 
-    const message = await interaction.editReply({
+    await interaction.reply({
       embeds: [buildListEmbed(result.data)],
-      components: [buildMainButtonsRow(result.data)],
+      components: [buildPublicButtonsRow()],
     });
 
+    const message = await interaction.fetchReply();
     this.sessionStore.set(message.id, result.data);
   }
 
@@ -156,18 +179,32 @@ export class SetupBalanceListCommand {
       return;
     }
 
-    const players = this.sessionStore.addPlayer(sessionId, result.data);
-    if (!players) {
+    const current = this.sessionStore.get(sessionId);
+    if (!current) {
       await interaction.reply({
-        content: 'Session expired. Please run /setup-balance-list again.',
+        content: 'Session expired. Please run /setup-balancer again.',
+        ephemeral: true,
+      });
+      return;
+    }
+    if (current.some((player) => player.discordId === result.data.discordId)) {
+      await interaction.reply({
+        content: `Player ${result.data.discordId} is already in the list. Use "Edit List" to change their ranks.`,
         ephemeral: true,
       });
       return;
     }
 
+    const players = this.sessionStore.addPlayer(sessionId, result.data)!;
+
     await interaction.update({
       embeds: [buildListEmbed(players)],
-      components: [buildMainButtonsRow(players)],
+      components: [buildManagerButtonsRow(players)],
     });
+    await refreshPublicList(
+      interaction,
+      this.sessionStore.resolve(sessionId),
+      players,
+    );
   }
 }
