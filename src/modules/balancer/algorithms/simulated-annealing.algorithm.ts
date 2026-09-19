@@ -1,0 +1,134 @@
+import { evaluate } from '../core/evaluate';
+import type { BalancingProblem, SlotAssignment } from '../core/problem';
+import { createRng } from '../core/rng';
+import type { BalancerAlgorithm } from './balancer-algorithm.interface';
+import { GreedyAlgorithm } from './greedy.algorithm';
+
+export interface SimulatedAnnealingOptions {
+  iterations: number;
+  /** Independent runs; the best result wins. */
+  restarts: number;
+  /** Start temperature as a fraction of the seed solution's score. */
+  startTemperatureFactor: number;
+  /** End temperature as a fraction of the start temperature. */
+  coolingRange: number;
+}
+
+const DEFAULT_OPTIONS: SimulatedAnnealingOptions = {
+  iterations: 20_000,
+  restarts: 5,
+  startTemperatureFactor: 0.3,
+  coolingRange: 1e-3,
+};
+
+/**
+ * Local search over the full assignment: starts from the greedy
+ * solution and repeatedly swaps two slots' players, accepting worse moves with
+ * a probability that shrinks as the temperature falls, then polishes the best
+ * result with a swap hill-climb. Works for any pool size and optimises the
+ * whole objective (including role placement).
+ */
+export class SimulatedAnnealingAlgorithm implements BalancerAlgorithm {
+  readonly name = 'simulated-annealing';
+  readonly description =
+    'Swap-based simulated annealing seeded from greedy; scales to any pool size.';
+
+  private readonly seedAlgorithm = new GreedyAlgorithm();
+  private readonly options: SimulatedAnnealingOptions;
+
+  constructor(options: Partial<SimulatedAnnealingOptions> = {}) {
+    this.options = { ...DEFAULT_OPTIONS, ...options };
+  }
+
+  supports(): boolean {
+    return true;
+  }
+
+  solve(problem: BalancingProblem): SlotAssignment {
+    const rng = createRng(problem.seed);
+    const start = this.seedAlgorithm.solve(problem);
+
+    let best = start;
+    let bestScore = evaluate(problem, start).score;
+
+    for (let run = 0; run < this.options.restarts && bestScore > 0; run++) {
+      const candidate = this.anneal(problem, start, rng);
+      const score = evaluate(problem, candidate).score;
+      if (score < bestScore) {
+        best = candidate;
+        bestScore = score;
+      }
+    }
+
+    return this.hillClimb(problem, best);
+  }
+
+  private anneal(
+    problem: BalancingProblem,
+    start: SlotAssignment,
+    rng: () => number,
+  ): SlotAssignment {
+    const { iterations, startTemperatureFactor, coolingRange } = this.options;
+    const slotCount = problem.slots.length;
+
+    let current = start;
+    let currentScore = evaluate(problem, current).score;
+    let best = current;
+    let bestScore = currentScore;
+
+    let temperature = Math.max(1, currentScore * startTemperatureFactor);
+    const cooling = Math.pow(coolingRange, 1 / iterations);
+
+    for (let i = 0; i < iterations && bestScore > 0; i++) {
+      const a = Math.floor(rng() * slotCount);
+      const b = Math.floor(rng() * slotCount);
+      if (a !== b) {
+        const candidate = current.slice();
+        [candidate[a], candidate[b]] = [candidate[b], candidate[a]];
+        const candidateScore = evaluate(problem, candidate).score;
+        const delta = candidateScore - currentScore;
+
+        if (delta <= 0 || rng() < Math.exp(-delta / temperature)) {
+          current = candidate;
+          currentScore = candidateScore;
+          if (currentScore < bestScore) {
+            best = current;
+            bestScore = currentScore;
+          }
+        }
+      }
+      temperature *= cooling;
+    }
+
+    return best;
+  }
+
+  /** Applies improving pairwise swaps until none is left. */
+  private hillClimb(
+    problem: BalancingProblem,
+    start: SlotAssignment,
+  ): SlotAssignment {
+    const slotCount = problem.slots.length;
+    let current = start;
+    let currentScore = evaluate(problem, current).score;
+
+    let improved = true;
+    while (improved) {
+      improved = false;
+      for (let a = 0; a < slotCount - 1; a++) {
+        for (let b = a + 1; b < slotCount; b++) {
+          const candidate = current.slice();
+          [candidate[a], candidate[b]] = [candidate[b], candidate[a]];
+          const score = evaluate(problem, candidate).score;
+          if (score < currentScore) {
+            current = candidate;
+            currentScore = score;
+            improved = true;
+          }
+        }
+      }
+    }
+
+    return current;
+  }
+}
