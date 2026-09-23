@@ -210,7 +210,7 @@ function playerRoleLines(player: BalancerPlayerInput): string[] {
 
 function playerBlock(player: BalancerPlayerInput, index: number): string {
   const header = `**${index + 1}. ${escapeMarkdown(player.username)}**`;
-  return [header, ...playerRoleLines(player)].join('');
+  return [header, ...playerRoleLines(player)].join('\n');
 }
 
 function buildListSummary(players: BalancerPlayerInput[]): string {
@@ -241,7 +241,7 @@ function buildListDescription(
   let shown = 0;
 
   for (const [index, player] of players.entries()) {
-    const next = `${description}\n\n${playerBlock(player, index)}`;
+    const next = `${description}\n${playerBlock(player, index)}`;
     if (next.length > EMBED_DESCRIPTION_LIMIT - moreNoteReserve) break;
     description = next;
     shown++;
